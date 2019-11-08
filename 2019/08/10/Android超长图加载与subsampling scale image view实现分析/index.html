@@ -13,7 +13,7 @@
   <!-- PACE Progress Bar START -->
 
   
-  <title>android 中图片单位及图片加载优化相关知识 | WPY&#39;s Android Tour</title>
+  <title>android超长图加载与subsampling scale image view实现分析 | WPY&#39;s Android Tour</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   <meta name="keywords" content="Android图片加载" />
@@ -24,7 +24,7 @@
   <meta name="description" content="Android中的图片加载一直是很重要的一块，也是很令人头疼的一块，动不动就出现OOM。所以我们有fresco等优秀的第三方框架，什么三级缓存，一行代码就帮我们轻松实现。但当面对超级长超级大分辨率尺寸的图时，就显得无能为力了，如果直接加载到内存中就又会出现OOM。 1.BitmapRegionDecoder实现长图大图的加载，最关键的类就是BitmapRegionDecoder他可以实现对图片的局">
 <meta name="keywords" content="Android,图片加载">
 <meta property="og:type" content="article">
-<meta property="og:title" content="android 中图片单位及图片加载优化相关知识">
+<meta property="og:title" content="Android超长图加载与subsampling scale image view实现分析">
 <meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;08&#x2F;10&#x2F;Android%E8%B6%85%E9%95%BF%E5%9B%BE%E5%8A%A0%E8%BD%BD%E4%B8%8Esubsampling%20scale%20image%20view%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90&#x2F;index.html">
 <meta property="og:site_name" content="WPY&#39;s Android Tour">
 <meta property="og:description" content="Android中的图片加载一直是很重要的一块，也是很令人头疼的一块，动不动就出现OOM。所以我们有fresco等优秀的第三方框架，什么三级缓存，一行代码就帮我们轻松实现。但当面对超级长超级大分辨率尺寸的图时，就显得无能为力了，如果直接加载到内存中就又会出现OOM。 1.BitmapRegionDecoder实现长图大图的加载，最关键的类就是BitmapRegionDecoder他可以实现对图片的局">
@@ -33,7 +33,7 @@
 <meta property="og:image" content="https:&#x2F;&#x2F;user-gold-cdn.xitu.io&#x2F;2019&#x2F;8&#x2F;10&#x2F;16c79b1a645139b9?w=651&amp;h=574&amp;f=png&amp;s=105433">
 <meta property="og:image" content="https:&#x2F;&#x2F;user-gold-cdn.xitu.io&#x2F;2019&#x2F;8&#x2F;10&#x2F;16c79b171e1c4db7?w=651&amp;h=137&amp;f=png&amp;s=18613">
 <meta property="og:image" content="https:&#x2F;&#x2F;user-gold-cdn.xitu.io&#x2F;2019&#x2F;8&#x2F;10&#x2F;16c79b1a645139b9?w=651&amp;h=574&amp;f=png&amp;s=105433">
-<meta property="og:updated_time" content="2019-11-08T09:29:15.471Z">
+<meta property="og:updated_time" content="2019-11-08T09:48:48.195Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;user-gold-cdn.xitu.io&#x2F;2019&#x2F;8&#x2F;10&#x2F;16c79b171e1c4db7?w=651&amp;h=137&amp;f=png&amp;s=18613">
   
@@ -171,7 +171,7 @@ var themeMenus = {};
         
   
     <h1 class="thumb" class="article-title" itemprop="name">
-      android 中图片单位及图片加载优化相关知识
+      Android超长图加载与subsampling scale image view实现分析
     </h1>
   
 
@@ -299,11 +299,11 @@ var themeMenus = {};
     
 <nav id="article-nav">
   
-    <a href="/2019/11/08/hello-world/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/11/08/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          Hello World
+          Android线程通信
         
       </div>
     </a>

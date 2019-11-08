@@ -19,16 +19,16 @@
   
   
   
-  <meta name="description" content="title: android 中图片单位及图片加载优化相关知识date: 2019-08-10tags:  操作系统 线程categories: [Android] [操作系统]   Android中的线程通信前言：Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛">
+  <meta name="description" content="title: Android线程通信机制date: 2019-10-21tags:  操作系统 线程categories: [Android] [操作系统]   Android中的线程通信前言：Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛出异常），文件读写等耗">
 <meta name="keywords" content="android,java,kotlin,源码学习">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android线程通信">
 <meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;11&#x2F;08&#x2F;Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1&#x2F;index.html">
 <meta property="og:site_name" content="WPY&#39;s Android Tour">
-<meta property="og:description" content="title: android 中图片单位及图片加载优化相关知识date: 2019-08-10tags:  操作系统 线程categories: [Android] [操作系统]   Android中的线程通信前言：Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛">
+<meta property="og:description" content="title: Android线程通信机制date: 2019-10-21tags:  操作系统 线程categories: [Android] [操作系统]   Android中的线程通信前言：Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛出异常），文件读写等耗">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;pic1.zhimg.com&#x2F;v2-53a14d2b5cccfed961d671199e62dda0_b.gif">
-<meta property="og:updated_time" content="2019-11-08T09:43:54.919Z">
+<meta property="og:updated_time" content="2019-11-08T09:51:10.606Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;pic1.zhimg.com&#x2F;v2-53a14d2b5cccfed961d671199e62dda0_b.gif">
   
@@ -187,7 +187,7 @@ var themeMenus = {};
     <div class="article-entry" itemprop="articleBody">
       
         <hr>
-<p>title: android 中图片单位及图片加载优化相关知识<br>date: 2019-08-10<br>tags:</p>
+<p>title: Android线程通信机制<br>date: 2019-10-21<br>tags:</p>
 <ul>
 <li>操作系统</li>
 <li>线程<br>categories:</li>
@@ -250,9 +250,9 @@ var themeMenus = {};
 <nav id="article-nav">
   
   
-    <a href="/2019/11/08/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2019/08/10/Android%E8%B6%85%E9%95%BF%E5%9B%BE%E5%8A%A0%E8%BD%BD%E4%B8%8Esubsampling%20scale%20image%20view%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Hello World</div>
+      <div class="article-nav-title">Android超长图加载与subsampling scale image view实现分析</div>
     </a>
   
 </nav>
