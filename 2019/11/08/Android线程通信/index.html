@@ -13,22 +13,24 @@
   <!-- PACE Progress Bar START -->
 
   
-  <title>hello world | WPY&#39;s Android Tour</title>
+  <title>android线程通信 | WPY&#39;s Android Tour</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   
   
   
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+  <meta name="description" content="title: android 中图片单位及图片加载优化相关知识date: 2019-08-10tags:  操作系统 线程categories: [Android] [操作系统]   Android中的线程通信前言：Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛">
 <meta name="keywords" content="android,java,kotlin,源码学习">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;11&#x2F;08&#x2F;hello-world&#x2F;index.html">
+<meta property="og:title" content="Android线程通信">
+<meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;11&#x2F;08&#x2F;Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1&#x2F;index.html">
 <meta property="og:site_name" content="WPY&#39;s Android Tour">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="title: android 中图片单位及图片加载优化相关知识date: 2019-08-10tags:  操作系统 线程categories: [Android] [操作系统]   Android中的线程通信前言：Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-11-13T16:20:35.658Z">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic1.zhimg.com&#x2F;v2-53a14d2b5cccfed961d671199e62dda0_b.gif">
+<meta property="og:updated_time" content="2019-11-08T09:43:54.919Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;pic1.zhimg.com&#x2F;v2-53a14d2b5cccfed961d671199e62dda0_b.gif">
   
     <link rel="alternate" href="/atom.xml" title="WPY&#39;s Android Tour" type="application/atom+xml">
   
@@ -156,7 +158,7 @@ var themeMenus = {};
             
       <div id="content" class="outer">
         
-          <section id="main" style="float:none;"><article id="post-hello-world" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+          <section id="main" style="float:none;"><article id="post-Android线程通信" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -164,7 +166,7 @@ var themeMenus = {};
         
   
     <h1 class="thumb" class="article-title" itemprop="name">
-      Hello World
+      Android线程通信
     </h1>
   
 
@@ -172,8 +174,8 @@ var themeMenus = {};
     
     <div class="article-meta">
       
-	Posted on <a href="/2019/11/08/hello-world/" class="article-date">
-	  <time datetime="2019-11-08T09:14:06.778Z" itemprop="datePublished">November 8, 2019</time>
+	Posted on <a href="/2019/11/08/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/" class="article-date">
+	  <time datetime="2019-11-08T09:37:43.613Z" itemprop="datePublished">November 8, 2019</time>
 	</a>
 
       
@@ -184,19 +186,30 @@ var themeMenus = {};
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <hr>
+<p>title: android 中图片单位及图片加载优化相关知识<br>date: 2019-08-10<br>tags:</p>
+<ul>
+<li>操作系统</li>
+<li>线程<br>categories:</li>
+<li>[Android]</li>
+<li>[操作系统]</li>
+</ul>
+<hr>
+<h2 id="Android中的线程通信"><a href="#Android中的线程通信" class="headerlink" title="Android中的线程通信"></a>Android中的线程通信</h2><h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛出异常），文件读写等耗时操作都要新建线程，然后在将结果返回到主线程上。或者想在另一个线程上运行一段代码，这些都是线程间的通信。</p>
+<p>但不管你使用何种方式实现：直接使用handle传递信息，使用asynctask，甚至使用rxjava的subscribeon() ,其底层都是通过Android 的handle机制来实现的所以接下来就来探索这一实现过程。</p>
+<h3 id="线程共享变量："><a href="#线程共享变量：" class="headerlink" title="线程共享变量："></a>线程共享变量：</h3><p>刚学过操作系统的我们知道：<code>在同一进程中线程和线程之间资源是共享的，也就是对于任何变量在任何线程都是可以访问和修改的</code>（注意这是在操作系统层面，因为所以线程共用一个进程的资源，但在语言层面，会有局部变量，全局变量的约束，而原则上只要你能找到变量的地址，你就能在任何线程上使用）。<br><img src="https://pic1.zhimg.com/v2-53a14d2b5cccfed961d671199e62dda0_b.gif" alt="操作系统进程模型"></p>
+<p>这样一来就好实现了，只需访问所需传递信息的线程的handle就行了，调用handle.send。Android将线程间传递的信息封装成了一个Message类，数据可以传递给Message的object（或复杂一点的bundle字段），调用post（）传递代码段其实被封装成了Message的Runnable callback（把代码块当成对象传递）。</p>
+<h3 id="线程接收信息"><a href="#线程接收信息" class="headerlink" title="线程接收信息"></a>线程接收信息</h3><p>了解了Android线程如何向另一个线程传递信息，那接收信息的线程如何处理呢？，另一个主角looper就要登场了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> (Looper源码)</span><br><span class="line">    ...</span><br><span class="line">    Looper.prepar()</span><br><span class="line">android.os.Handler handler = new Handler()&#123;</span><br><span class="line">  @Override</span><br><span class="line">  public void handleMessage(final Message msg) &#123;</span><br><span class="line">    //这里接受并处理消息</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line">Looper.loop()</span><br></pre></td></tr></table></figure>
+<p>调用这段代码将一个普通线程变成looper线程，looper会不断从其Messagequeue中获取Message传递给这个handle处理(Looper.loop()这个方法其实是个死循环)，这个Messagequeue其实是一个阻塞队列，队列中没有东西时会阻塞当前线程。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">looper.loop()主要代码 </span><br><span class="line">for (;;) &#123;</span><br><span class="line">      ...</span><br><span class="line">  Message msg = queue.next(); </span><br><span class="line">      ...</span><br><span class="line">  msg.target.dispatchMessage(msg);</span><br><span class="line">      ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="线程本地变量"><a href="#线程本地变量" class="headerlink" title="线程本地变量"></a>线程本地变量</h3><p>那么如何根据不同的thread获取其自己的looper呢？这就要用到ThreadLocal了。<br>ThreadLocal，顾名思义，就是线程的本地变量，他将变量和线程联系起来，是不同线程获取不同的值。其实这个实现很简单一点也不神秘，只是做了一些封装，用起来很方便，用在looper上<br>（至于如何获取当前运行的线程，其实底部是通过native C语言方法来实现的）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> (Looper源码)</span><br><span class="line">    ...</span><br><span class="line">    static final ThreadLocal&lt;Looper&gt; sThreadLocal = new ThreadLocal&lt;Looper&gt;();</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    想获取只需</span><br><span class="line">    sThreadLocal.get()(将本身ThreadLocal&lt;Looper&gt;作为map的键)</span><br><span class="line"></span><br><span class="line">Thread里面有一个map：</span><br><span class="line">ThreadLocal.ThreadLocalMap threadLocals</span><br></pre></td></tr></table></figure>
+<p>这样就可以实现线程间的通信了！<br>而rxjava的各种操作符，asyncTask底部都是通过这个来实现的！<br>另外就不得不提到kotlin的协程了</p>
+<blockquote>
+<p>协程：就是一个线程框架，就是 Kotlin 提供的一套线程封装的 API——扔物线</p>
+</blockquote>
+<p>kotlin的协成比rxjava等其他封装的更好，功能更强大，更方便，推荐大家去学习！</p>
 
       
     </div>
@@ -236,19 +249,10 @@ var themeMenus = {};
     
 <nav id="article-nav">
   
-    <a href="/2019/11/08/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Android线程通信
-        
-      </div>
-    </a>
   
-  
-    <a href="/2019/08/10/Android%E8%B6%85%E9%95%BF%E5%9B%BE%E5%8A%A0%E8%BD%BD%E4%B8%8Esubsampling%20scale%20image%20view%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2019/11/08/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">android 中图片单位及图片加载优化相关知识</div>
+      <div class="article-nav-title">Hello World</div>
     </a>
   
 </nav>
@@ -262,7 +266,7 @@ var themeMenus = {};
     <div id="toc" class="toc-article" style="overflow-y: scroll; max-width: 28%;">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol>
+      <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Android中的线程通信"><span class="nav-number">1.</span> <span class="nav-text">Android中的线程通信</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言："><span class="nav-number">1.1.</span> <span class="nav-text">前言：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程共享变量："><span class="nav-number">1.2.</span> <span class="nav-text">线程共享变量：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程接收信息"><span class="nav-number">1.3.</span> <span class="nav-text">线程接收信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程本地变量"><span class="nav-number">1.4.</span> <span class="nav-text">线程本地变量</span></a></li></ol></li></ol>
     
     </div>
   </aside>

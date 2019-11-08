@@ -13,21 +13,23 @@
   <!-- PACE Progress Bar START -->
 
   
-  <title>hello world | WPY&#39;s Android Tour</title>
+  <title>android fragmentmanager使用 | WPY&#39;s Android Tour</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
+  <meta name="keywords" content="fragment" />
   
   
   
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
-<meta name="keywords" content="android,java,kotlin,源码学习">
+  
+  <meta name="description" content="Android FragmentManager使用1.获取fragmentManager要想使用好fragmentmanager，第一步肯定先要正确获取他呀：    获取activity中的fragmentmanager：在activity中 getFragmentManager()或getSupportFragmentManager()（这个用于support包的fragment，向下兼容，现a">
+<meta name="keywords" content="fragment">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;11&#x2F;08&#x2F;hello-world&#x2F;index.html">
+<meta property="og:title" content="Android FragmentManager使用">
+<meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;04&#x2F;25&#x2F;AndroidFragment%E5%AD%A6%E4%B9%A0&#x2F;index.html">
 <meta property="og:site_name" content="WPY&#39;s Android Tour">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="Android FragmentManager使用1.获取fragmentManager要想使用好fragmentmanager，第一步肯定先要正确获取他呀：    获取activity中的fragmentmanager：在activity中 getFragmentManager()或getSupportFragmentManager()（这个用于support包的fragment，向下兼容，现a">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-11-13T16:20:35.658Z">
+<meta property="og:updated_time" content="2019-11-08T09:13:36.527Z">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="WPY&#39;s Android Tour" type="application/atom+xml">
@@ -156,7 +158,7 @@ var themeMenus = {};
             
       <div id="content" class="outer">
         
-          <section id="main" style="float:none;"><article id="post-hello-world" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+          <section id="main" style="float:none;"><article id="post-AndroidFragment学习" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -164,7 +166,7 @@ var themeMenus = {};
         
   
     <h1 class="thumb" class="article-title" itemprop="name">
-      Hello World
+      Android FragmentManager使用
     </h1>
   
 
@@ -172,8 +174,8 @@ var themeMenus = {};
     
     <div class="article-meta">
       
-	Posted on <a href="/2019/11/08/hello-world/" class="article-date">
-	  <time datetime="2019-11-08T09:14:06.778Z" itemprop="datePublished">November 8, 2019</time>
+	Posted on <a href="/2019/04/25/AndroidFragment%E5%AD%A6%E4%B9%A0/" class="article-date">
+	  <time datetime="2019-04-24T16:00:00.000Z" itemprop="datePublished">April 25, 2019</time>
 	</a>
 
       
@@ -184,25 +186,37 @@ var themeMenus = {};
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
+        <h1 id="Android-FragmentManager使用"><a href="#Android-FragmentManager使用" class="headerlink" title="Android FragmentManager使用"></a>Android FragmentManager使用</h1><h3 id="1-获取fragmentManager"><a href="#1-获取fragmentManager" class="headerlink" title="1.获取fragmentManager"></a>1.获取fragmentManager</h3><p>要想使用好fragmentmanager，第一步肯定先要正确获取他呀：  </p>
+<ul>
+<li>获取activity中的fragmentmanager：在activity中 <code>getFragmentManager()</code>或<code>getSupportFragmentManager()</code>（这个用于support包的fragment，向下兼容，现api28后变成support包全部转为Androidx）如果在fragment中则可以先<code>getactivity（）</code>获取到其依赖的activity</li>
+<li>获取在fragment中的fragmentmanager：<code>getChildFragmentManager()</code>这种情况用于fragment中嵌套fragment，同时子fragment可以通过<code>getParentFragment()</code>获得</li>
+</ul>
+<h3 id="2-事务"><a href="#2-事务" class="headerlink" title="2.事务"></a>2.事务</h3><ul>
+<li>在Android中fragmentManager是以事务为单位来管理的，每次我们都通过<code>fragmentManager.beginTransaction()</code>来获得一个FragmentTransaction对象，然后进行添加，替换，删除等，最后commit提交，这整个过程从begin到commit进行的所有操作就是一个事务，每个commit提交一个事务</li>
+<li><strong>这里要注意commit</strong>调用commit()方法并不立即执行这个事务，而是在Activity的UI线程之上（”main”线程）调度运行，以便这个线程能够尽快执行这个事务，这意味这个commit是异步的，所以必要时可以通过<code>commitNow()</code>来立即执行</li>
+</ul>
+<h3 id="2-fragmentManager的各种方法"><a href="#2-fragmentManager的各种方法" class="headerlink" title="2.fragmentManager的各种方法"></a>2.fragmentManager的各种方法</h3><ul>
+<li><code>add()</code>add方法会直接将一个fragment添加到指定的id布局中，不管这个布局容器中原来有没有，无条件覆盖。所以会叠加，而之前的fragment只是被遮挡，view并不会被摧毁</li>
+<li><code>getFragmentbyTag()</code>与<code>getFragmentbyId()</code>这两个方法可以获得有相应的tag或id属性的fragment（这两个属性也可以通过xml里布局设置），那么就出现了有多个fragment拥有相同的tag和id，那调用该方法获得的是哪个呢？实测获得的是最顶层的那个fragment，也就是最近添加的</li>
+<li><code>replace()</code>该方法不同于add()可有其注释的出，relplace()会先相应调用该布局id容器中中所有的add的fragment的<code>remove()</code>方法，然后在调用<code>add()</code>方法</li>
+<li><code>remove()</code>移除这个fragment，最后会调用<code>onDetach()</code></li>
+<li><code>show()</code>和<code>hide()</code> ,这里要注意调用这两个方法并不会走fragment的生命周期，which means 并不会调用<code>onPause（）</code>，<code>onStop</code>方法，而是只调用了<code>onHiddenChanged()</code>方法，所有改变应在这个方法里，重写之</li>
+<li><code>addToBackTrack()</code>最后说一下fragment的回退栈，注意，只有在commit事务是调用了<code>addToBackTrack()</code>方法，才会有回退栈，才会在回退栈里添加，否则就没有回退栈，pop方法不会有任何改变。 <code>addToBackTrack()</code>即把本次事务的所有操作储存起来，<strong>注意</strong>调用了addtobaktrack后remove方法不会真的把fragment移除，而只是distroy了它的view，并没有调用<code>onDetach()</code>,也就是说它还连接在宿主中。</li>
+<li><code>popbackTrack</code>，该方法即将回退栈中的最近的一次事务pop出来，也就是反过来调用方法，add就是remove，remove就add，所以如果这个调用了replace，那么pop后就会将这个replace add的fragment移除，然后在把之前remove的所有fragment add到里面。而之前就存在的fragment依然存在，没有变化，就像是add覆盖到上面一样。所以加入回退栈后pop可以回到上次操作</li>
+</ul>
+<hr>
+<h3 id="最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment"><a href="#最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment" class="headerlink" title="最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment"></a>最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment</h3>
       
     </div>
     <footer class="entry-meta entry-footer">
       
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
       
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fragment/" rel="tag">fragment</a></li></ul>
+
       
             
       
@@ -236,19 +250,19 @@ var themeMenus = {};
     
 <nav id="article-nav">
   
-    <a href="/2019/11/08/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/05/14/Android%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          Android线程通信
+          Android 网络请求心得
         
       </div>
     </a>
   
   
-    <a href="/2019/08/10/Android%E8%B6%85%E9%95%BF%E5%9B%BE%E5%8A%A0%E8%BD%BD%E4%B8%8Esubsampling%20scale%20image%20view%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2019/04/08/Android%20JetPack%20%E6%9E%B6%E6%9E%84/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">android 中图片单位及图片加载优化相关知识</div>
+      <div class="article-nav-title">Android JetPack 架构</div>
     </a>
   
 </nav>
@@ -262,7 +276,7 @@ var themeMenus = {};
     <div id="toc" class="toc-article" style="overflow-y: scroll; max-width: 28%;">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol>
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Android-FragmentManager使用"><span class="nav-number">1.</span> <span class="nav-text">Android FragmentManager使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-获取fragmentManager"><span class="nav-number">1.0.1.</span> <span class="nav-text">1.获取fragmentManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-事务"><span class="nav-number">1.0.2.</span> <span class="nav-text">2.事务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-fragmentManager的各种方法"><span class="nav-number">1.0.3.</span> <span class="nav-text">2.fragmentManager的各种方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment"><span class="nav-number">1.0.4.</span> <span class="nav-text">最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment</span></a></li></ol></li></ol></li></ol>
     
     </div>
   </aside>

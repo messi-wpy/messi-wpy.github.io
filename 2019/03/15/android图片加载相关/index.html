@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <!-- PACE Progress Bar START -->
+  
+    <script src="https://raw.githubusercontent.com/HubSpot/pace/v1.0.2/pace.min.js"></script>
+    <link rel="stylesheet" href="https://github.com/HubSpot/pace/raw/master/themes/orange/pace-theme-flash.css">
+  
+  
+
+  <!-- PACE Progress Bar START -->
+
+  
+  <title>android 中图片单位及图片加载优化相关知识 | WPY&#39;s Android Tour</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="keywords" content="Android图片加载" />
+  
+  
+  
+  
+  <meta name="description" content="android 中图片单位及图片加载优化相关知识 1. 图片相关知识，像素，分辨率px就是图片中最小的点，最小单位，单位色块,每个图都是由这些小像素点组成的，如基本的图片格式bitmap,注意像素的大小没有固定的长度，不同设备上一个单位的像素色块的大小是不一样的 分辨率=画面水平方向的像素值 * 画面垂直方向的像素值。 分辨率可以分为两方面：屏幕分辨率和图像分辨率。 屏幕分辨率如1024*768,">
+<meta name="keywords" content="Android,图片加载">
+<meta property="og:type" content="article">
+<meta property="og:title" content="android 中图片单位及图片加载优化相关知识">
+<meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;03&#x2F;15&#x2F;android%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E7%9B%B8%E5%85%B3&#x2F;index.html">
+<meta property="og:site_name" content="WPY&#39;s Android Tour">
+<meta property="og:description" content="android 中图片单位及图片加载优化相关知识 1. 图片相关知识，像素，分辨率px就是图片中最小的点，最小单位，单位色块,每个图都是由这些小像素点组成的，如基本的图片格式bitmap,注意像素的大小没有固定的长度，不同设备上一个单位的像素色块的大小是不一样的 分辨率=画面水平方向的像素值 * 画面垂直方向的像素值。 分辨率可以分为两方面：屏幕分辨率和图像分辨率。 屏幕分辨率如1024*768,">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-11-08T09:13:36.527Z">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="WPY&#39;s Android Tour" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="https://cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" >
+  <link rel="stylesheet" href="/css/hiero.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+  
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/my.css">
+  <!-- Google Adsense -->
+  
+</head>
+
+<script>
+var themeMenus = {};
+
+  themeMenus["/"] = "Home"; 
+
+  themeMenus["/archives"] = "Archives"; 
+
+  themeMenus["/categories"] = "Categories"; 
+
+  themeMenus["/tags"] = "Tags"; 
+
+  themeMenus["/about"] = "About"; 
+
+</script>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  <header id="allheader" class="site-header" role="banner">
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="WPY&#39;s Android Tour" rel="home"> WPY&#39;s Android Tour </a>
+            
+          </h1>
+
+          
+            <div class="site-description">android开发与开源框架源码学习，java，kotlin等语言学习，linux操作系统</div>
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+            <div class="clearfix sf-menu">
+
+              <ul id="main-nav" class="nmenu sf-js-enabled">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="originBgDiv" style="background: #fff; width: 100%;">
+
+      <div style="max-height:600px; overflow: hidden;  display: flex; display: -webkit-flex; align-items: center;">
+        <img id="originBg" width="100%" alt="" src="">
+      </div>
+
+  </div>
+
+  <script>
+  function setAboutIMG(){
+      var imgUrls = "css/images/pose.jpg,https://source.unsplash.com/collection/954550/1920x1080".split(",");
+      var random = Math.floor((Math.random() * imgUrls.length ));
+      if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+        document.getElementById("originBg").src=imgUrls[random];
+      } else {
+        document.getElementById("originBg").src='/' + imgUrls[random];
+      }
+  }
+  bgDiv=document.getElementById("originBgDiv");
+  if(location.pathname.match('about')){
+    setAboutIMG();
+    bgDiv.style.display='block';
+  }else{
+    bgDiv.style.display='none';
+  }
+  </script>
+
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-android图片加载相关" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      android 中图片单位及图片加载优化相关知识
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/03/15/android%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E7%9B%B8%E5%85%B3/" class="article-date">
+	  <time datetime="2019-03-15T01:24:25.000Z" itemprop="datePublished">March 15, 2019</time>
+	</a>
+
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="android-中图片单位及图片加载优化相关知识"><a href="#android-中图片单位及图片加载优化相关知识" class="headerlink" title="android 中图片单位及图片加载优化相关知识"></a>android 中图片单位及图片加载优化相关知识</h1><hr>
+<h2 id="1-图片相关知识，像素，分辨率"><a href="#1-图片相关知识，像素，分辨率" class="headerlink" title="1. 图片相关知识，像素，分辨率"></a>1. 图片相关知识，像素，分辨率</h2><pre><code>px就是图片中最小的点，最小单位，单位色块,每个图都是由这些小像素点组成的，如基本的图片格式bitmap,注意像素的大小没有固定的长度，不同设备上一个单位的像素色块的大小是不一样的
+分辨率=画面水平方向的像素值 * 画面垂直方向的像素值。
+分辨率可以分为两方面：屏幕分辨率和图像分辨率。
+屏幕分辨率如1024*768,就表示设备水平方向上有1024个像素点，垂直方向上有768个
+图片分辨率也如上所说，比如如果某图片是500*200,就表示如果这个图片一比一显示的话，就是水平方向有500个像素点，而垂直方向有200个.
+而像素点的大小不一样，所以同一张分辨率的图片在不同尺寸的显示器上很可能显示不同大小，或者即便尺寸相同，分辨率高的那个图片显示会小
+像素越高，单个面积越小，显示的画质就越细致（当然要有相应分辨率的图片）
+
+补充：图片的放大缩小：
+放大是通过算法认为插入很多像素，所以如果放的很大，有效像素就很少，就会变得模糊
+缩小是通过一定的算法删去一部分像素，所以会在细节上对视一小部分像素
+
+所以如果图像分辨率小于显示器分辨率时，第一种是显示实际大小，但不是全屏，第二种是放大来全屏显示
+如果大于显示器分辨率，第一种是局部显示（全屏），可拖放，第二种是通过缩小全屏显示
+
+finally,虽然不同设备上像素块大小会不一样，但是同一台硬件设备上的屏幕分辨率、像素块大小是不会变的。PC电脑上之所以可以调整屏幕分辨率，其实也是通过算法转换了</code></pre><h2 id="1-android-图片，控件大小相关单位"><a href="#1-android-图片，控件大小相关单位" class="headerlink" title="1.android 图片，控件大小相关单位"></a>1.android 图片，控件大小相关单位</h2><ul>
+<li><code>px</code>:<br>(Pixel像素)构成图像的基本单元，但是单个像素的大小不固定，所以在不同尺寸设备上会有拉伸缩放，不推荐</li>
+<li><code>dpi</code>:<br>是指屏幕上每英寸距离中有多少个像素点，dpi=dpi=√hight^2+width^2 / size  (android以160dpi为标准)</li>
+<li><strong>dp(dip)</strong> 设备独立像素 device independent pixel<br>一般都用这个作单位，顾名思义，独立，对于相同尺寸的手机，即使分辨率不同，同DP的组件占用屏幕比例相同，UI效果也相同。（注意，是相同的尺寸）  dp可以维护Android组件自身的比例平衡，不至于在不同屏幕上变形<br>转换公式：<code>px = dp * (dpi/160)</code></li>
+<li>sp<br> 主要用于字体，使得字体可以根据用户手机设置来修改字体大小</li>
+</ul>
+<h3 id="注-如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议"><a href="#注-如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议" class="headerlink" title="注:如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议"></a>注:如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议</h3><p>可通过：dpi可以通过DisplayMetrics类的densityDpi属性获取当前手机的dpi数值，该类也可以获取到跟屏幕密度有关的其它属性。一般获取DisplayMetrics类有以下方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">方式1:</span><br><span class="line">//content:Activity,Content,Application. </span><br><span class="line">DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();</span><br><span class="line">方式2:</span><br><span class="line">//getSystemService可以通过 Activity,Content,Application等获取.</span><br><span class="line"> DisplayMetrics displayMetrics = new DisplayMetrics();</span><br><span class="line"> WindowManager windowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);</span><br><span class="line"> windowManager.getDefaultDisplay().getMetrics(displayMetrics);</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h2 id="屏幕适配"><a href="#屏幕适配" class="headerlink" title="屏幕适配"></a>屏幕适配</h2><p>主流推荐<a href="https://mp.weixin.qq.com/s?__biz=MzI1MzYzMjE0MQ==&mid=2247484502&idx=2&sn=a60ea223de4171dd2022bc2c71e09351&scene=21#wechat_redirect" target="_blank" rel="noopener">今日头条适配方案</a>但自己不是太懂。。。  </p>
+<ul>
+<li>使用<code>wrap_content、match_parent、weight</code></li>
+<li>使用相对布局</li>
+</ul>
+<h2 id="几个不同文件夹放的本地图片drawable"><a href="#几个不同文件夹放的本地图片drawable" class="headerlink" title="几个不同文件夹放的本地图片drawable"></a>几个不同文件夹放的本地图片drawable</h2><p> Bitmap.decodeResource() 源码，新图的高度 = 原图高度 * (设备的 dpi / 目录对应的 dpi )</p>
+<h2 id="bitmap"><a href="#bitmap" class="headerlink" title="bitmap"></a>bitmap</h2><p><strong>Bitmap</strong> 就是Android中的图片，一张位图，只有生成了bitmap,才占内存，可以通过<code>bitmap.getbytecount()</code>来获取该bitmap具体占用内存</p>
+<ul>
+<li><p>bitmap的创建：  </p>
+<ol>
+<li>通过已有的bitmap创建（可以对已有的bitmap进行各种操作放大，裁剪等）：<br><code>createBitmap(...)</code><br><code>createScaleBitmap(...)</code><br>…</li>
+<li>通过BitmapFactory，从各种数据源来解析，创建bitma对象：  <ul>
+<li>decodeByteArray(byte[] data, int offset, int length)：从指定的字节数组的offset位置开始，将长度为length的字节数据解析成Bitmap对象。</li>
+<li>decodeFile(String pathName)：从pathName指定的文件中解析、创建Bitmap对象。</li>
+<li>decodeFileDescriptor(FileDescriptor fd)：从FileDescriptor对应的文件中解析、创建Bitmap对象。</li>
+<li>decodeResource(Resources res, int id)：根据给定的资源ID从指定资源中解析、创建Bitmap对象。</li>
+<li>decodeStream(InputStream is)：从指定的输入流中解析、创建Bitmap对象。</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>BitmapFactory.Options  </p>
+<ol>
+<li>BitmapFactory.Options类是BitmapFactory对图片<strong>进行解码时</strong>使用的一个配置参数类，其中定义了一系列的public成员变量，每个成员变量代表一个配置参数。  </li>
+<li><code>inperferredConfig</code>参数,设置图片使用的颜色模式</li>
+<li><code>inJustDecodeBounds</code>，true—&gt;告诉BitmapFactory只是获得长宽，不用加载bitmap到内存中，返回null  </li>
+<li><code>inSmapleSize</code> 尺寸压缩，减少图片水平竖直像素点（分辨率）只能缩小，且为2的倍数，（&lt;1时自动变为1）</li>
+</ol>
+</li>
+<li><p>Matrix</p>
+<ol>
+<li>matrix类，即矩阵，可以对图片bitmap矩阵进行一些列线性变换，放大，旋转，位移等等 </li>
+</ol>
+</li>
+</ul>
+<h2 id="图片的三层缓存"><a href="#图片的三层缓存" class="headerlink" title="图片的三层缓存"></a>图片的三层缓存</h2><h3 id="加载图片时，应一次从内存—-gt-本地—-gt-网络去寻找图片资源，并以图片的url值为key"><a href="#加载图片时，应一次从内存—-gt-本地—-gt-网络去寻找图片资源，并以图片的url值为key" class="headerlink" title="加载图片时，应一次从内存—&gt;本地—&gt;网络去寻找图片资源，并以图片的url值为key"></a>加载图片时，应一次从内存—&gt;本地—&gt;网络去寻找图片资源，并以图片的url值为key</h3><ol>
+<li>从内存获取：使用的是LruCache这个类（Least Recently Used ）即最近最少使用算法，内部维护一个LinkedHashMap</li>
+<li>从文件获取：google推荐的DiskLruCache，硬盘缓存类</li>
+<li>网络</li>
+<li>在上传，缓存本地时最好压缩一下，insamplesize尺寸压缩和compress质量压缩，以减小文件大小</li>
+</ol>
+<h2 id="加载网络大图，多图优化"><a href="#加载网络大图，多图优化" class="headerlink" title="加载网络大图，多图优化"></a>加载网络大图，多图优化</h2><p>加载大图，长图时，可以用<code>BitmapRegionDecoder</code>进行图片的局部加载</p>
+<p>参考：<br><a href="https://developer.android.google.cn/guide/practices/screens_support" target="_blank" rel="noopener">google-androld</a><br><a href="https://blog.csdn.net/qq_31382907/article/details/81033596" target="_blank" rel="noopener">csdn1</a><br><a href="https://www.zhihu.com/question/21149600/answer/29971490" target="_blank" rel="noopener">zhihu</a></p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" rel="tag">图片加载</a></li></ul>
+
+      
+            
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/03/18/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          正则表达式（Java）
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/12/16/c++%E5%9D%91%E4%B9%8B%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">c++坑之拷贝函数总结</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article" style="overflow-y: scroll; max-width: 28%;">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#android-中图片单位及图片加载优化相关知识"><span class="nav-number">1.</span> <span class="nav-text">android 中图片单位及图片加载优化相关知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-图片相关知识，像素，分辨率"><span class="nav-number">1.1.</span> <span class="nav-text">1. 图片相关知识，像素，分辨率</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-android-图片，控件大小相关单位"><span class="nav-number">1.2.</span> <span class="nav-text">1.android 图片，控件大小相关单位</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#注-如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议"><span class="nav-number">1.2.1.</span> <span class="nav-text">注:如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#屏幕适配"><span class="nav-number">1.3.</span> <span class="nav-text">屏幕适配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#几个不同文件夹放的本地图片drawable"><span class="nav-number">1.4.</span> <span class="nav-text">几个不同文件夹放的本地图片drawable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bitmap"><span class="nav-number">1.5.</span> <span class="nav-text">bitmap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#图片的三层缓存"><span class="nav-number">1.6.</span> <span class="nav-text">图片的三层缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#加载图片时，应一次从内存—-gt-本地—-gt-网络去寻找图片资源，并以图片的url值为key"><span class="nav-number">1.6.1.</span> <span class="nav-text">加载图片时，应一次从内存—&gt;本地—&gt;网络去寻找图片资源，并以图片的url值为key</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加载网络大图，多图优化"><span class="nav-number">1.7.</span> <span class="nav-text">加载网络大图，多图优化</span></a></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+      <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2019 WPY&#39;s Android Tour All Rights Reserved.
+          
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/iTimeTraveler/hexo-theme-hiero" target="_blank">hiero</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var contentdiv = document.getElementById("content");
+
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+</script>
+
+<!-- Custome JS -->
+<script src="/js/my.js"></script>
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>
+
+
+<script src="/js/scripts.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://dnqof95d40fo6.cloudfront.net/atw7f8.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>

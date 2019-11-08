@@ -157,7 +157,7 @@ var themeMenus = {};
         
           <section id="main">
   
-    <article id="post-hello-world"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-Android线程通信"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -165,7 +165,7 @@ var themeMenus = {};
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2019/11/08/hello-world/">Hello World</a>
+      <a class="article-title" href="/2019/11/08/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/">Android线程通信</a>
     </h1>
   
 
@@ -173,27 +173,38 @@ var themeMenus = {};
     
     <div class="article-meta">
       
-	Posted on <a href="/2019/11/08/hello-world/" class="article-date">
-	  <time datetime="2019-11-08T03:29:35.046Z" itemprop="datePublished">November 8, 2019</time>
+	Posted on <a href="/2019/11/08/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/" class="article-date">
+	  <time datetime="2019-11-08T09:37:43.613Z" itemprop="datePublished">November 8, 2019</time>
 	</a>
 
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <hr>
+<p>title: android 中图片单位及图片加载优化相关知识<br>date: 2019-08-10<br>tags:</p>
+<ul>
+<li>操作系统</li>
+<li>线程<br>categories:</li>
+<li>[Android]</li>
+<li>[操作系统]</li>
+</ul>
+<hr>
+<h2 id="Android中的线程通信"><a href="#Android中的线程通信" class="headerlink" title="Android中的线程通信"></a>Android中的线程通信</h2><h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛出异常），文件读写等耗时操作都要新建线程，然后在将结果返回到主线程上。或者想在另一个线程上运行一段代码，这些都是线程间的通信。</p>
+<p>但不管你使用何种方式实现：直接使用handle传递信息，使用asynctask，甚至使用rxjava的subscribeon() ,其底层都是通过Android 的handle机制来实现的所以接下来就来探索这一实现过程。</p>
+<h3 id="线程共享变量："><a href="#线程共享变量：" class="headerlink" title="线程共享变量："></a>线程共享变量：</h3><p>刚学过操作系统的我们知道：<code>在同一进程中线程和线程之间资源是共享的，也就是对于任何变量在任何线程都是可以访问和修改的</code>（注意这是在操作系统层面，因为所以线程共用一个进程的资源，但在语言层面，会有局部变量，全局变量的约束，而原则上只要你能找到变量的地址，你就能在任何线程上使用）。<br><img src="https://pic1.zhimg.com/v2-53a14d2b5cccfed961d671199e62dda0_b.gif" alt="操作系统进程模型"></p>
+<p>这样一来就好实现了，只需访问所需传递信息的线程的handle就行了，调用handle.send。Android将线程间传递的信息封装成了一个Message类，数据可以传递给Message的object（或复杂一点的bundle字段），调用post（）传递代码段其实被封装成了Message的Runnable callback（把代码块当成对象传递）。</p>
+<h3 id="线程接收信息"><a href="#线程接收信息" class="headerlink" title="线程接收信息"></a>线程接收信息</h3><p>了解了Android线程如何向另一个线程传递信息，那接收信息的线程如何处理呢？，另一个主角looper就要登场了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> (Looper源码)</span><br><span class="line">    ...</span><br><span class="line">    Looper.prepar()</span><br><span class="line">android.os.Handler handler = new Handler()&#123;</span><br><span class="line">  @Override</span><br><span class="line">  public void handleMessage(final Message msg) &#123;</span><br><span class="line">    //这里接受并处理消息</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line">Looper.loop()</span><br></pre></td></tr></table></figure>
+<p>调用这段代码将一个普通线程变成looper线程，looper会不断从其Messagequeue中获取Message传递给这个handle处理(Looper.loop()这个方法其实是个死循环)，这个Messagequeue其实是一个阻塞队列，队列中没有东西时会阻塞当前线程。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">looper.loop()主要代码 </span><br><span class="line">for (;;) &#123;</span><br><span class="line">      ...</span><br><span class="line">  Message msg = queue.next(); </span><br><span class="line">      ...</span><br><span class="line">  msg.target.dispatchMessage(msg);</span><br><span class="line">      ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="线程本地变量"><a href="#线程本地变量" class="headerlink" title="线程本地变量"></a>线程本地变量</h3><p>那么如何根据不同的thread获取其自己的looper呢？这就要用到ThreadLocal了。<br>ThreadLocal，顾名思义，就是线程的本地变量，他将变量和线程联系起来，是不同线程获取不同的值。其实这个实现很简单一点也不神秘，只是做了一些封装，用起来很方便，用在looper上<br>（至于如何获取当前运行的线程，其实底部是通过native C语言方法来实现的）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> (Looper源码)</span><br><span class="line">    ...</span><br><span class="line">    static final ThreadLocal&lt;Looper&gt; sThreadLocal = new ThreadLocal&lt;Looper&gt;();</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    想获取只需</span><br><span class="line">    sThreadLocal.get()(将本身ThreadLocal&lt;Looper&gt;作为map的键)</span><br><span class="line"></span><br><span class="line">Thread里面有一个map：</span><br><span class="line">ThreadLocal.ThreadLocalMap threadLocals</span><br></pre></td></tr></table></figure>
+<p>这样就可以实现线程间的通信了！<br>而rxjava的各种操作符，asyncTask底部都是通过这个来实现的！<br>另外就不得不提到kotlin的协程了</p>
+<blockquote>
+<p>协程：就是一个线程框架，就是 Kotlin 提供的一套线程封装的 API——扔物线</p>
+</blockquote>
+<p>kotlin的协成比rxjava等其他封装的更好，功能更强大，更方便，推荐大家去学习！</p>
 
       
     </div>
@@ -213,7 +224,714 @@ var themeMenus = {};
     
 
   
+    <article id="post-hello-world"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2019/11/08/hello-world/">Hello World</a>
+    </h1>
+  
 
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/11/08/hello-world/" class="article-date">
+	  <time datetime="2019-11-08T09:14:06.778Z" itemprop="datePublished">November 8, 2019</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+      
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
+    <article id="post-Android超长图加载与subsampling scale image view实现分析"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2019/08/10/Android%E8%B6%85%E9%95%BF%E5%9B%BE%E5%8A%A0%E8%BD%BD%E4%B8%8Esubsampling%20scale%20image%20view%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90/">android 中图片单位及图片加载优化相关知识</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/08/10/Android%E8%B6%85%E9%95%BF%E5%9B%BE%E5%8A%A0%E8%BD%BD%E4%B8%8Esubsampling%20scale%20image%20view%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90/" class="article-date">
+	  <time datetime="2019-08-09T16:00:00.000Z" itemprop="datePublished">August 10, 2019</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Android中的图片加载一直是很重要的一块，也是很令人头疼的一块，动不动就出现OOM。所以我们有fresco等优秀的第三方框架，什么三级缓存，一行代码就帮我们轻松实现。但当面对超级长超级大分辨率尺寸的图时，就显得无能为力了，如果直接加载到内存中就又会出现OOM。</p>
+<h2 id="1-BitmapRegionDecoder"><a href="#1-BitmapRegionDecoder" class="headerlink" title="1.BitmapRegionDecoder"></a>1.BitmapRegionDecoder</h2><p>实现长图大图的加载，最关键的类就是<code>BitmapRegionDecoder</code>他可以实现对图片的局部加载。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mDecoder=BitmapRegionDecoder.newInstance(image,false);</span><br><span class="line"></span><br><span class="line">  //这里不能用option来获取图片的宽和高，因为经过BitmapRegionDecoder类处理过后的inputstream不能在获取的其信息，自动返回-1</span><br><span class="line">  imageHeight=mDecoder.getHeight();</span><br><span class="line">  imageWidth=mDecoder.getWidth();</span><br><span class="line">  bmp = mDecoder.decodeRegion(mRect, option);</span><br></pre></td></tr></table></figure>
+<p>这里注意经过BitmapRegionDecoder类处理过后的inputstream不能再用option获取其信息，会自动返回-1。当创建decoder对象后其实并没有将图片加载到内存中，只有调用了<code>bmp = mDecoder.decodeRegion(mRect, option);</code>之后才将这个mrect矩形的图片局部加载到内存中。</p>
+<h3 id="自己实现"><a href="#自己实现" class="headerlink" title="自己实现"></a>自己实现</h3><p>那么既然Android有这么方便的类，那我们岂不是很简单就可以自己实现啦！所以参考 鸿洋_的<a href="https://blog.csdn.net/lmj623565791/article/details/49300989/" target="_blank" rel="noopener">Android 高清加载巨图方案 拒绝压缩图片</a><br>这篇博客，我们可以自己实现一个简易的加载长图框架：</p>
+<ul>
+<li>自定义一个view，重写他的<code>ondraw（）</code>和<code>onTouchEvent()</code></li>
+<li>创建GestureDetector.OnGestureListener的实现类和scroller去接管触摸事件，在move时记录滑动距离，重写<code>computeScroll()</code>去辅助滑动</li>
+<li>初始化我们的局部加载类BitmapRegionDecoder，当屏幕滑动到哪，记录其坐标到rect里然后直接mDecoder.decodeRegion(mRect, option);调用            invalidate()去ondraw（）</li>
+<li>同时注意设置<code>option.inBitmap</code>开启图片的复用，进一步减少内存占用</li>
+<li>另一个减小内存开销的就是设置合适的采样率，根据控件的大小对图片进行合适的采样压缩<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">int insamplesize=1;</span><br><span class="line">while (imageWidth&gt;1.6*width) &#123;</span><br><span class="line">      imageWidth /= 2;</span><br><span class="line">      insamplesize*=2;</span><br><span class="line">&#125;</span><br><span class="line">option.inMutable=true;</span><br><span class="line">option.inSampleSize=insamplesize;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">protected void onDraw(Canvas canvas) &#123;</span><br><span class="line">       super.onDraw(canvas);</span><br><span class="line">       if (mDecoder!=null) &#123;</span><br><span class="line">               option.inBitmap=bmp;</span><br><span class="line">               matrix.setScale(scale,scale);</span><br><span class="line">               bmp = mDecoder.decodeRegion(mRect, option);</span><br><span class="line">               canvas.drawBitmap(bmp,matrix,bitmapPaint);</span><br><span class="line">           Log.i(&quot;TAG&quot;, &quot;onDraw: &quot;+bmp.getByteCount());</span><br><span class="line">          &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+注意：这里记录一个小小的坑：当用matrix进行图片的放大时，一定一定要设置画笔Paint，设置抗锯齿等优化，设与不设的差距真的挺大的<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">private Paint bitmapPaint;</span><br><span class="line"></span><br><span class="line">    bitmapPaint = new Paint();</span><br><span class="line">    bitmapPaint.setAntiAlias(true);</span><br><span class="line">    bitmapPaint.setFilterBitmap(true);</span><br><span class="line">    bitmapPaint.setDither(true);</span><br></pre></td></tr></table></figure>
+<h4 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h4>这样一个简易的图片加载框架就实现了，完美的避免了OOM，因为不用把图片完整的加载到内存中！但是，经过实测，这种方法在加载分辨率比较小的大图时滑动还是挺丝滑的，但一遇到分辨率再大一点的，就会感受到明显的滑动的卡顿，于是我把目光转向了subsampling scale image view这个目前应该是最流行的开源框架</li>
+</ul>
+<h2 id="2-subsampling-scale-imag实现原理"><a href="#2-subsampling-scale-imag实现原理" class="headerlink" title="2.subsampling scale imag实现原理"></a>2.subsampling scale imag实现原理</h2><p>这里以原理实现为主，不想贴很多代码，具体可自己下载阅读<a href="https://github.com/davemorrissey/subsampling-scale-image-view" target="_blank" rel="noopener">github地址</a></p>
+<h5 id="1-ImageSource"><a href="#1-ImageSource" class="headerlink" title="1.ImageSource"></a>1.ImageSource</h5><p>subsampling scale image view通过这个类ImageSource去获取图片，所以我们的图片资源都需要通过ImageSource去加载，支持从assets，文件，流中加载，从源码上看他其实就是一个工具类，用于方便加载各个路径的文件</p>
+<h5 id="2-fullImageSampleSize"><a href="#2-fullImageSampleSize" class="headerlink" title="2.fullImageSampleSize"></a>2.fullImageSampleSize</h5><p>.fullImageSampleSamplSize由<code>private int calculateInSampleSize(float scale)</code>计算出，这个值应该是我们首先应该理解的。<br>他决定了图片是否需要用BitmapRegionDecoder进行区域加载。如果他的计算结果<code>等于1</code>，则表示这张图的分辨率还不够大，不需要进行切割进行区域加载，所以这种情况下是最简单的，直接将图加载进入，放大缩小，移动，都是通过Matrix来实现的，所以接下来就来说一下Matrix</p>
+<h5 id="3-Matrix"><a href="#3-Matrix" class="headerlink" title="3.Matrix"></a>3.Matrix</h5><p>matrix，矩阵，很多关于图片的功能都能通过他来做一些十分的变换来实现（可惜当年线代没学好。。。）比如图片我的位移，放缩，旋转等等。subsampling scale image view也用了matrix来实现图片的放缩和位移，主要方法是<br><strong><code>matrix.setPolyToPoly(srcArray, 0, dstArray, 0, 4</code>);</strong> 有两个数组srA，rray和dstArray<br>dstarray数组决定了图片在屏幕的位置，而大图的移动滑动就是通过他来实现的</p>
+<h5 id="4-Tile"><a href="#4-Tile" class="headerlink" title="4.Tile"></a>4.Tile</h5><p><code>private static class Tile</code>这个内部类就是切片类，subsampling scale image view中最重要的一个数据结构。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">private static class Tile &#123;</span><br><span class="line"></span><br><span class="line">       private Rect sRect;</span><br><span class="line">       private int sampleSize;</span><br><span class="line">       private Bitmap bitmap;</span><br><span class="line">       private boolean loading;</span><br><span class="line">       private boolean visible;</span><br><span class="line"></span><br><span class="line">       // Volatile fields instantiated once then updated before use to reduce GC.</span><br><span class="line">       private Rect vRect;</span><br><span class="line">       private Rect fileSRect;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>他的属性也很简单就是用来存储图片的一段切片信息，各种rect和bitmap和一个samplesiz其中需要区分一下各个rect</p>
+<ul>
+<li>srect和filesrect其实是保存这个切片的原始大小区域，也就调用是<code>mDecoder.decodeRegion(mRect, option)</code>区域加载时传入的rect</li>
+<li>vRect描述绘制在view画布中的实际位置，也就是说图片放大后的上下滑动就是通过改变这个rect结合<code>matrix.setPolyToP()</code>来实现的<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">           protected void onDraw(Canvas canvas) &#123;</span><br><span class="line">                        ......</span><br><span class="line">                      if (matrix == null) &#123; matrix = new Matrix(); &#125;</span><br><span class="line">                        matrix.reset();</span><br><span class="line">                        setMatrixArray(srcArray, 0, 0, tile.bitmap.getWidth(), 0, tile.bitmap.getWidth(), tile.bitmap.getHeight(), 0, tile.bitmap.getHeight());</span><br><span class="line">                        if (getRequiredRotation() == ORIENTATION_0) &#123;</span><br><span class="line">                            setMatrixArray(dstArray, tile.vRect.left, tile.vRect.top, tile.vRect.right, tile.vRect.top, tile.vRect.right, tile.vRect.bottom, tile.vRect.left,  </span><br><span class="line">                            &#125;...</span><br><span class="line">                            ...</span><br><span class="line">                            </span><br><span class="line">                        matrix.setPolyToPoly(srcArray, 0, dstArray, 0, 4);</span><br><span class="line">                        canvas.drawBitmap(tile.bitmap, matrix, bitmapPaint);</span><br><span class="line"></span><br><span class="line">                        ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="5-三个task"><a href="#5-三个task" class="headerlink" title="5.三个task"></a>5.三个task</h5>TilesInitTask，TileLoadTask  ，BitmapLoadTask<br>subsampling scale image view内部又创建了三个继承自<code>AsyncTask</code>的task用来在后台加载decode图从而不阻碍ui主线程，更加流畅。<br>所以当<code>fullImageSampleSize==1</code>时，就直接用BitmapLoadTask解码整个图片不需切割，当期大于1时，就需要用TileLoadTask区域解码分割后的图片</li>
+</ul>
+<h2 id="Map-lt-Integer-List-lt-Tile-gt-gt-tileMap"><a href="#Map-lt-Integer-List-lt-Tile-gt-gt-tileMap" class="headerlink" title="Map&lt;Integer, List&lt;Tile&gt;&gt; tileMap"></a><code>Map&lt;Integer, List&lt;Tile&gt;&gt; tileMap</code></h2><p>最后介绍这个框架的核心，就是这个map<br>我们知道，图片放得越大，所需要的像素分辨率就要越高才能匹配，要不然就会很模糊。相反，如果图片缩得很小，就不需要很高的分辨率，多了就浪费了。而Android中就可以根据 option.inSampleSize来对图片进行采样压缩，减小分辨率。<br>所以，根据这个原理，subsampling scale image view将其根据需要计算出不同的采样率，当做key，然后根据不同的采样率进行切割，生成<code>List&lt;Tile&gt;</code><br>放大的时候，subsampling scale image view会选取合适的采样率后获取到<code>List&lt;Tile&gt;</code>然后进行解码，并且，他只会解码显示的部分，也就是<code>til.visiable</code>为true时才会解码。否者将其回收。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/8/10/16c79b171e1c4db7?w=651&h=137&f=png&s=18613" alt=""></p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/8/10/16c79b1a645139b9?w=651&h=574&f=png&s=105433" alt=""></p>
+<p>综上就是subsampling scale image view的大致实现原理</p>
+<h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><p>对比自己实现的和subsampling scale image view，后者在大图的切片方面做得更好只将大图切成若干片，在判断是否可见，如果可见就加载到内存中，否者回收；滑动时只改变矩阵的值进行简单的位移变换，进一步提升了流畅度，而且根据不同放缩比例选择合适的采样率，进一步减少内存占用。自己实现的每滑动一次就要重新解码绘制好几次，所以后者性能更高，值得学习。Android中的图片加载一直是很重要的一块，也是很令人头疼的一块，动不动就出现OOM。所以我们有fresco等优秀的第三方框架，什么三级缓存，一行代码就帮我们轻松实现。但当面对超级长超级大分辨率尺寸的图时，就显得无能为力了，如果直接加载到内存中就又会出现OOM。</p>
+<h2 id="1-BitmapRegionDecoder-1"><a href="#1-BitmapRegionDecoder-1" class="headerlink" title="1.BitmapRegionDecoder"></a>1.BitmapRegionDecoder</h2><p>实现长图大图的加载，最关键的类就是<code>BitmapRegionDecoder</code>他可以实现对图片的局部加载。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mDecoder=BitmapRegionDecoder.newInstance(image,false);</span><br><span class="line"></span><br><span class="line">  //这里不能用option来获取图片的宽和高，因为经过BitmapRegionDecoder类处理过后的inputstream不能在获取的其信息，自动返回-1</span><br><span class="line">  imageHeight=mDecoder.getHeight();</span><br><span class="line">  imageWidth=mDecoder.getWidth();</span><br><span class="line">  bmp = mDecoder.decodeRegion(mRect, option);</span><br></pre></td></tr></table></figure>
+<p>这里注意经过BitmapRegionDecoder类处理过后的inputstream不能再用option获取其信息，会自动返回-1。当创建decoder对象后其实并没有将图片加载到内存中，只有调用了<code>bmp = mDecoder.decodeRegion(mRect, option);</code>之后才将这个mrect矩形的图片局部加载到内存中。</p>
+<h3 id="自己实现-1"><a href="#自己实现-1" class="headerlink" title="自己实现"></a>自己实现</h3><p>那么既然Android有这么方便的类，那我们岂不是很简单就可以自己实现啦！所以参考 鸿洋_的<a href="https://blog.csdn.net/lmj623565791/article/details/49300989/" target="_blank" rel="noopener">Android 高清加载巨图方案 拒绝压缩图片</a><br>这篇博客，我们可以自己实现一个简易的加载长图框架：</p>
+<ul>
+<li>自定义一个view，重写他的<code>ondraw（）</code>和<code>onTouchEvent()</code></li>
+<li>创建GestureDetector.OnGestureListener的实现类和scroller去接管触摸事件，在move时记录滑动距离，重写<code>computeScroll()</code>去辅助滑动</li>
+<li>初始化我们的局部加载类BitmapRegionDecoder，当屏幕滑动到哪，记录其坐标到rect里然后直接mDecoder.decodeRegion(mRect, option);调用            invalidate()去ondraw（）</li>
+<li>同时注意设置<code>option.inBitmap</code>开启图片的复用，进一步减少内存占用</li>
+<li>另一个减小内存开销的就是设置合适的采样率，根据控件的大小对图片进行合适的采样压缩<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">int insamplesize=1;</span><br><span class="line">while (imageWidth&gt;1.6*width) &#123;</span><br><span class="line">      imageWidth /= 2;</span><br><span class="line">      insamplesize*=2;</span><br><span class="line">&#125;</span><br><span class="line">option.inMutable=true;</span><br><span class="line">option.inSampleSize=insamplesize;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">protected void onDraw(Canvas canvas) &#123;</span><br><span class="line">       super.onDraw(canvas);</span><br><span class="line">       if (mDecoder!=null) &#123;</span><br><span class="line">               option.inBitmap=bmp;</span><br><span class="line">               matrix.setScale(scale,scale);</span><br><span class="line">               bmp = mDecoder.decodeRegion(mRect, option);</span><br><span class="line">               canvas.drawBitmap(bmp,matrix,bitmapPaint);</span><br><span class="line">           Log.i(&quot;TAG&quot;, &quot;onDraw: &quot;+bmp.getByteCount());</span><br><span class="line">          &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+注意：这里记录一个小小的坑：当用matrix进行图片的放大时，一定一定要设置画笔Paint，设置抗锯齿等优化，设与不设的差距真的挺大的<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">private Paint bitmapPaint;</span><br><span class="line"></span><br><span class="line">    bitmapPaint = new Paint();</span><br><span class="line">    bitmapPaint.setAntiAlias(true);</span><br><span class="line">    bitmapPaint.setFilterBitmap(true);</span><br><span class="line">    bitmapPaint.setDither(true);</span><br></pre></td></tr></table></figure>
+<h4 id="结论-1"><a href="#结论-1" class="headerlink" title="结论"></a>结论</h4>这样一个简易的图片加载框架就实现了，完美的避免了OOM，因为不用把图片完整的加载到内存中！但是，经过实测，这种方法在加载分辨率比较小的大图时滑动还是挺丝滑的，但一遇到分辨率再大一点的，就会感受到明显的滑动的卡顿，于是我把目光转向了subsampling scale image view这个目前应该是最流行的开源框架</li>
+</ul>
+<h2 id="2-subsampling-scale-imag实现原理-1"><a href="#2-subsampling-scale-imag实现原理-1" class="headerlink" title="2.subsampling scale imag实现原理"></a>2.subsampling scale imag实现原理</h2><p>这里以原理实现为主，不想贴很多代码，具体可自己下载阅读<a href="https://github.com/davemorrissey/subsampling-scale-image-view" target="_blank" rel="noopener">github地址</a></p>
+<h5 id="1-ImageSource-1"><a href="#1-ImageSource-1" class="headerlink" title="1.ImageSource"></a>1.ImageSource</h5><p>subsampling scale image view通过这个类ImageSource去获取图片，所以我们的图片资源都需要通过ImageSource去加载，支持从assets，文件，流中加载，从源码上看他其实就是一个工具类，用于方便加载各个路径的文件</p>
+<h5 id="2-fullImageSampleSize-1"><a href="#2-fullImageSampleSize-1" class="headerlink" title="2.fullImageSampleSize"></a>2.fullImageSampleSize</h5><p>.fullImageSampleSamplSize由<code>private int calculateInSampleSize(float scale)</code>计算出，这个值应该是我们首先应该理解的。<br>他决定了图片是否需要用BitmapRegionDecoder进行区域加载。如果他的计算结果<code>等于1</code>，则表示这张图的分辨率还不够大，不需要进行切割进行区域加载，所以这种情况下是最简单的，直接将图加载进入，放大缩小，移动，都是通过Matrix来实现的，所以接下来就来说一下Matrix</p>
+<h5 id="3-Matrix-1"><a href="#3-Matrix-1" class="headerlink" title="3.Matrix"></a>3.Matrix</h5><p>matrix，矩阵，很多关于图片的功能都能通过他来做一些十分的变换来实现（可惜当年线代没学好。。。）比如图片我的位移，放缩，旋转等等。subsampling scale image view也用了matrix来实现图片的放缩和位移，主要方法是<br><strong><code>matrix.setPolyToPoly(srcArray, 0, dstArray, 0, 4</code>);</strong> 有两个数组srA，rray和dstArray<br>dstarray数组决定了图片在屏幕的位置，而大图的移动滑动就是通过他来实现的</p>
+<h5 id="4-Tile-1"><a href="#4-Tile-1" class="headerlink" title="4.Tile"></a>4.Tile</h5><p><code>private static class Tile</code>这个内部类就是切片类，subsampling scale image view中最重要的一个数据结构。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">private static class Tile &#123;</span><br><span class="line"></span><br><span class="line">       private Rect sRect;</span><br><span class="line">       private int sampleSize;</span><br><span class="line">       private Bitmap bitmap;</span><br><span class="line">       private boolean loading;</span><br><span class="line">       private boolean visible;</span><br><span class="line"></span><br><span class="line">       // Volatile fields instantiated once then updated before use to reduce GC.</span><br><span class="line">       private Rect vRect;</span><br><span class="line">       private Rect fileSRect;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>他的属性也很简单就是用来存储图片的一段切片信息，各种rect和bitmap和一个samplesiz其中需要区分一下各个rect</p>
+<ul>
+<li>srect和filesrect其实是保存这个切片的原始大小区域，也就调用是<code>mDecoder.decodeRegion(mRect, option)</code>区域加载时传入的rect</li>
+<li>vRect描述绘制在view画布中的实际位置，也就是说图片放大后的上下滑动就是通过改变这个rect结合<code>matrix.setPolyToP()</code>来实现的<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">           protected void onDraw(Canvas canvas) &#123;</span><br><span class="line">                        ......</span><br><span class="line">                      if (matrix == null) &#123; matrix = new Matrix(); &#125;</span><br><span class="line">                        matrix.reset();</span><br><span class="line">                        setMatrixArray(srcArray, 0, 0, tile.bitmap.getWidth(), 0, tile.bitmap.getWidth(), tile.bitmap.getHeight(), 0, tile.bitmap.getHeight());</span><br><span class="line">                        if (getRequiredRotation() == ORIENTATION_0) &#123;</span><br><span class="line">                            setMatrixArray(dstArray, tile.vRect.left, tile.vRect.top, tile.vRect.right, tile.vRect.top, tile.vRect.right, tile.vRect.bottom, tile.vRect.left,  </span><br><span class="line">                            &#125;...</span><br><span class="line">                            ...</span><br><span class="line">                            </span><br><span class="line">                        matrix.setPolyToPoly(srcArray, 0, dstArray, 0, 4);</span><br><span class="line">                        canvas.drawBitmap(tile.bitmap, matrix, bitmapPaint);</span><br><span class="line"></span><br><span class="line">                        ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="5-三个task-1"><a href="#5-三个task-1" class="headerlink" title="5.三个task"></a>5.三个task</h5>TilesInitTask，TileLoadTask  ，BitmapLoadTask<br>subsampling scale image view内部又创建了三个继承自<code>AsyncTask</code>的task用来在后台加载decode图从而不阻碍ui主线程，更加流畅。<br>所以当<code>fullImageSampleSize==1</code>时，就直接用BitmapLoadTask解码整个图片不需切割，当期大于1时，就需要用TileLoadTask区域解码分割后的图片</li>
+</ul>
+<h2 id="Map-lt-Integer-List-lt-Tile-gt-gt-tileMap-1"><a href="#Map-lt-Integer-List-lt-Tile-gt-gt-tileMap-1" class="headerlink" title="Map&lt;Integer, List&lt;Tile&gt;&gt; tileMap"></a><code>Map&lt;Integer, List&lt;Tile&gt;&gt; tileMap</code></h2><p>最后介绍这个框架的核心，就是这个map<br>我们知道，图片放得越大，所需要的像素分辨率就要越高才能匹配，要不然就会很模糊。相反，如果图片缩得很小，就不需要很高的分辨率，多了就浪费了。而Android中就可以根据 option.inSampleSize来对图片进行采样压缩，减小分辨率。<br>所以，根据这个原理，subsampling scale image view将其根据需要计算出不同的采样率，当做key，然后根据不同的采样率进行切割，生成<code>List&lt;Tile&gt;</code><br>放大的时候，subsampling scale image view会选取合适的采样率后获取到<code>List&lt;Tile&gt;</code>然后进行解码，并且，他只会解码显示的部分，也就是<code>til.visiable</code>为true时才会解码。否者将其回收。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/8/10/16c79b171e1c4db7?w=651&h=137&f=png&s=18613" alt=""></p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/8/10/16c79b1a645139b9?w=651&h=574&f=png&s=105433" alt=""></p>
+<p>综上就是subsampling scale image view的大致实现原理</p>
+<h2 id="对比-1"><a href="#对比-1" class="headerlink" title="对比"></a>对比</h2><p>对比自己实现的和subsampling scale image view，后者在大图的切片方面做得更好只将大图切成若干片，在判断是否可见，如果可见就加载到内存中，否者回收；滑动时只改变矩阵的值进行简单的位移变换，进一步提升了流畅度，而且根据不同放缩比例选择合适的采样率，进一步减少内存占用。自己实现的每滑动一次就要重新解码绘制好几次，所以后者性能更高，值得学习。</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" rel="tag">图片加载</a></li></ul>
+
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
+    <article id="post-Android网络请求"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2019/05/14/Android%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/">Android 网络请求心得</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/05/14/Android%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" class="article-date">
+	  <time datetime="2019-05-13T16:00:00.000Z" itemprop="datePublished">May 14, 2019</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Rxjava-retrofit-okhttp的网络请求框架"><a href="#Rxjava-retrofit-okhttp的网络请求框架" class="headerlink" title="Rxjava+retrofit+okhttp的网络请求框架"></a>Rxjava+retrofit+okhttp的网络请求框架</h1><h2 id="之需要注意的地方"><a href="#之需要注意的地方" class="headerlink" title="之需要注意的地方"></a>之需要注意的地方</h2><hr>
+<h3 id="1-retrofit和okhttp异步回调的线程问题："><a href="#1-retrofit和okhttp异步回调的线程问题：" class="headerlink" title="1 retrofit和okhttp异步回调的线程问题："></a>1 retrofit和okhttp异步回调的线程问题：</h3><ul>
+<li>okhttp异步调用后，callback运行在<strong>子线程</strong></li>
+<li>retrofit异步调用后，其callback运行在<strong>主线程</strong>，retrofit就是对okhttp的一系列封装，运用了大量设计模式，其回调结果最后通过handle传到了主线程，这点要注意，尤其在更新ui时</li>
+<li>rxjava封装后，回调线程可以通过其线程调度来很方便的设置</li>
+</ul>
+<h3 id="2-rxjava-的Observable封装的-retrofit-call的泛型参数："><a href="#2-rxjava-的Observable封装的-retrofit-call的泛型参数：" class="headerlink" title="2 rxjava 的Observable封装的 retrofit call的泛型参数："></a>2 rxjava 的Observable封装的 retrofit call的泛型参数：</h3><ul>
+<li><p><code>TypeBody(class类)</code>：如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public class Result&#123;</span><br><span class="line">    private String name;</span><br><span class="line">    private String ID;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//在相应retrofit接口中</span><br><span class="line">@GET(.....)</span><br><span class="line">Observable&lt;Result&gt; Login()</span><br></pre></td></tr></table></figure>
+<p>通过添加gson转换器，将网络请求响应中返回的json转换为相应的java类，方便操作，注意这个必须在创建retrofit是添加gson转换器<code>.addConverterFactory(GsonConverterFactory.create())</code></p>
+</li>
+<li><p><code>ResponseBody</code>(okhttp包下的)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@GET(...)</span><br><span class="line">Observable&lt;ResponseBody&gt; Login()</span><br></pre></td></tr></table></figure>
+<p>这个适用于你不需要将其转换成具体的类，只是想获取响应体，当让你也可以获取body后自己手动解析body数据</p>
+</li>
+<li><p><code>Response&lt;T&gt;(retrofit包下)</code><br>这个将所有响应结果都封装到了这个response里，他的泛型参数可以填ResponseBody或者class类，通过他不仅可以获取body，还可以获取响应码等。</p>
+</li>
+</ul>
+<h3 id="3-Rxjava的网络请求错误处理"><a href="#3-Rxjava的网络请求错误处理" class="headerlink" title="3 Rxjava的网络请求错误处理"></a>3 Rxjava的网络请求错误处理</h3><ul>
+<li><strong>注意</strong>,如果是用Response包裹的响应体，那么之前说过，所有东西都被包裹在了Response里，所以即使是错误的响应，如4××/5××,也会包裹在Response里，发送给<code>onNext()</code>,而不会发送给<code>onError()</code>,而错误的响应体可以通过<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (e instanceof HttpException)&#123;</span><br><span class="line">   (HttpException)e).response().errorBody()</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+获取错误的响应体。<br>而如果不是用Response包裹，那么除了2**的响应吗会进入<code>onNext()</code>里，其他的响应码都会直接进入<code>onError()</code>里,这样就中断了这个观察链</li>
+</ul>
+<p><img src="../images/picture1.png" alt="picture_1"></p>
+<h4 id="参考stackoverfollow"><a href="#参考stackoverfollow" class="headerlink" title="参考stackoverfollow"></a>参考<a href="https://stackoverflow.com/questions/33774940/get-response-status-code-using-retrofit-2-0-and-rxjava" target="_blank" rel="noopener">stackoverfollow</a></h4><ul>
+<li>关于rxjava的flatmap链式调用：flatmap可以解决回调地狱，解决连续进行网络请求的问题，如<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">Observable.just(&quot;hello&quot;)</span><br><span class="line">            .flatMap(new Func1&lt;String, Observable&lt;?&gt;&gt;() &#123;</span><br><span class="line">                @Override</span><br><span class="line">                public Observable&lt;?&gt; call(String s) &#123;</span><br><span class="line">                    Log.i(TAG, &quot;call: flatmap  -----1&quot;);</span><br><span class="line">                    s = &quot;hellp flapmap1&quot;;</span><br><span class="line">                    if (s != null)</span><br><span class="line">                        return Observable.error(new NullPointerException(&quot;null test&quot;));</span><br><span class="line">                    return Observable.just(s);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).flatMap(new Func1&lt;Object, Observable&lt;?&gt;&gt;() &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public Observable&lt;?&gt; call(Object o) &#123;</span><br><span class="line">            Log.i(TAG, &quot;call: flatmap-----2&quot;);</span><br><span class="line">            return Observable.just(&quot;33333&quot;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;).subscribe(new Subscriber&lt;Object&gt;() &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void onCompleted() &#123;</span><br><span class="line">            Log.i(TAG, &quot;onCompleted: &quot;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void onError(Throwable e) &#123;</span><br><span class="line">            Log.i(TAG, &quot;onError: call&quot;);</span><br><span class="line">            if (e instanceof NullPointerException)</span><br><span class="line">                Log.i(TAG, &quot;onError: illegal   &quot; + e.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void onNext(Object o) &#123;</span><br><span class="line">            Log.i(TAG, &quot;onNext: &quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+第一个flatmap中抛出了一个异常，那么下一个flatmap就不会调用，直接进入了最后订阅的观察者中，进入<code>onError()</code>里。可见，即便你在flatmap里对上一个被观察者发送的结果进行了操作，但他并不算是一个观察者，只是对其进行了一部分处理，map等操作符也是这样，他们共同组成了一个长长的链，唯一的观察者在最后订阅的Subscriber中处理，所以如果中间任意环节出了异常，那么该链在此中断，直接进入最后观察者的onerror里。<br>所以之前的如果用Response包裹，就不会中断观察链，你可以根据响应码做一些处理。</li>
+</ul>
+<h3 id="4-okhttp的拦截器及重定向处理"><a href="#4-okhttp的拦截器及重定向处理" class="headerlink" title="4 okhttp的拦截器及重定向处理"></a>4 okhttp的拦截器及重定向处理</h3><ul>
+<li>okhttp的拦截器是其责任链模式的重要实现，通过一个个拦截器将网络链接的各个部分，模块拆分开，分工明确</li>
+<li>okhttp中对重定向的处理是通过其第一个内置的拦截器<code>RetryAndFollowUpInterceptor</code>实现的，他通过while循环来不断创建request请求资源，知道响应码为200（或错误），当然他也负责进行失败重试</li>
+<li>关于Application interceptors与Network Interceptors区别<br>他们其实都是用户自定义的拦截器，只是添加顺序不同，导致有区别 okhttp源码中的添加顺序：<br><img src="../images/picture2.png" alt="顺序"><br>可见Application interceptors第一个添加，而Network Interceptors添加在RetryAndFollowUpInterceptor等拦截器之后，所以Network Interceptors可以拦截到重定向的请求，而Application interceptors只能拦截到刚开始的请求和最后重定向后的结果<br><img src="../images/picture3.png" alt="拦截器调用示意图"></li>
+</ul>
+<h4 id="参考：博客"><a href="#参考：博客" class="headerlink" title="参考：博客"></a>参考：<a href="https://www.jianshu.com/p/d04b463806c8" target="_blank" rel="noopener">博客</a></h4>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>, <a class="article-category-link" href="/categories/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/">网络请求</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" rel="tag">网络请求</a></li></ul>
+
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
+    <article id="post-AndroidFragment学习"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2019/04/25/AndroidFragment%E5%AD%A6%E4%B9%A0/">Android FragmentManager使用</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/04/25/AndroidFragment%E5%AD%A6%E4%B9%A0/" class="article-date">
+	  <time datetime="2019-04-24T16:00:00.000Z" itemprop="datePublished">April 25, 2019</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Android-FragmentManager使用"><a href="#Android-FragmentManager使用" class="headerlink" title="Android FragmentManager使用"></a>Android FragmentManager使用</h1><h3 id="1-获取fragmentManager"><a href="#1-获取fragmentManager" class="headerlink" title="1.获取fragmentManager"></a>1.获取fragmentManager</h3><p>要想使用好fragmentmanager，第一步肯定先要正确获取他呀：  </p>
+<ul>
+<li>获取activity中的fragmentmanager：在activity中 <code>getFragmentManager()</code>或<code>getSupportFragmentManager()</code>（这个用于support包的fragment，向下兼容，现api28后变成support包全部转为Androidx）如果在fragment中则可以先<code>getactivity（）</code>获取到其依赖的activity</li>
+<li>获取在fragment中的fragmentmanager：<code>getChildFragmentManager()</code>这种情况用于fragment中嵌套fragment，同时子fragment可以通过<code>getParentFragment()</code>获得</li>
+</ul>
+<h3 id="2-事务"><a href="#2-事务" class="headerlink" title="2.事务"></a>2.事务</h3><ul>
+<li>在Android中fragmentManager是以事务为单位来管理的，每次我们都通过<code>fragmentManager.beginTransaction()</code>来获得一个FragmentTransaction对象，然后进行添加，替换，删除等，最后commit提交，这整个过程从begin到commit进行的所有操作就是一个事务，每个commit提交一个事务</li>
+<li><strong>这里要注意commit</strong>调用commit()方法并不立即执行这个事务，而是在Activity的UI线程之上（”main”线程）调度运行，以便这个线程能够尽快执行这个事务，这意味这个commit是异步的，所以必要时可以通过<code>commitNow()</code>来立即执行</li>
+</ul>
+<h3 id="2-fragmentManager的各种方法"><a href="#2-fragmentManager的各种方法" class="headerlink" title="2.fragmentManager的各种方法"></a>2.fragmentManager的各种方法</h3><ul>
+<li><code>add()</code>add方法会直接将一个fragment添加到指定的id布局中，不管这个布局容器中原来有没有，无条件覆盖。所以会叠加，而之前的fragment只是被遮挡，view并不会被摧毁</li>
+<li><code>getFragmentbyTag()</code>与<code>getFragmentbyId()</code>这两个方法可以获得有相应的tag或id属性的fragment（这两个属性也可以通过xml里布局设置），那么就出现了有多个fragment拥有相同的tag和id，那调用该方法获得的是哪个呢？实测获得的是最顶层的那个fragment，也就是最近添加的</li>
+<li><code>replace()</code>该方法不同于add()可有其注释的出，relplace()会先相应调用该布局id容器中中所有的add的fragment的<code>remove()</code>方法，然后在调用<code>add()</code>方法</li>
+<li><code>remove()</code>移除这个fragment，最后会调用<code>onDetach()</code></li>
+<li><code>show()</code>和<code>hide()</code> ,这里要注意调用这两个方法并不会走fragment的生命周期，which means 并不会调用<code>onPause（）</code>，<code>onStop</code>方法，而是只调用了<code>onHiddenChanged()</code>方法，所有改变应在这个方法里，重写之</li>
+<li><code>addToBackTrack()</code>最后说一下fragment的回退栈，注意，只有在commit事务是调用了<code>addToBackTrack()</code>方法，才会有回退栈，才会在回退栈里添加，否则就没有回退栈，pop方法不会有任何改变。 <code>addToBackTrack()</code>即把本次事务的所有操作储存起来，<strong>注意</strong>调用了addtobaktrack后remove方法不会真的把fragment移除，而只是distroy了它的view，并没有调用<code>onDetach()</code>,也就是说它还连接在宿主中。</li>
+<li><code>popbackTrack</code>，该方法即将回退栈中的最近的一次事务pop出来，也就是反过来调用方法，add就是remove，remove就add，所以如果这个调用了replace，那么pop后就会将这个replace add的fragment移除，然后在把之前remove的所有fragment add到里面。而之前就存在的fragment依然存在，没有变化，就像是add覆盖到上面一样。所以加入回退栈后pop可以回到上次操作</li>
+</ul>
+<hr>
+<h3 id="最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment"><a href="#最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment" class="headerlink" title="最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment"></a>最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment</h3>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fragment/" rel="tag">fragment</a></li></ul>
+
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
+    <article id="post-Android JetPack 架构"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2019/04/08/Android%20JetPack%20%E6%9E%B6%E6%9E%84/">Android JetPack 架构</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/04/08/Android%20JetPack%20%E6%9E%B6%E6%9E%84/" class="article-date">
+	  <time datetime="2019-04-07T16:00:00.000Z" itemprop="datePublished">April 8, 2019</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Android-JetPack-架构"><a href="#Android-JetPack-架构" class="headerlink" title="Android JetPack 架构"></a>Android JetPack 架构</h1><h2 id="Androidx-包"><a href="#Androidx-包" class="headerlink" title="Androidx 包"></a>Androidx 包</h2><h3 id="数据绑定"><a href="#数据绑定" class="headerlink" title="数据绑定"></a>数据绑定</h3><ol>
+<li>bulid.gradle<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">...</span><br><span class="line">dataBinding &#123;</span><br><span class="line">    enabled = true</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>绑定变量：可以创建数据类，集合，导入其他类</li>
+<li>方法如<code>onclick()</code></li>
+</ol>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>, <a class="article-category-link" href="/categories/JetPack/">JetPack</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JetPack/" rel="tag">JetPack</a></li></ul>
+
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
+    <article id="post-android gradle plugin中各种版本"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2019/03/18/android%20gradle%20plugin%E4%B8%AD%E5%90%84%E7%A7%8D%E7%89%88%E6%9C%AC/">Android构建工具各种版本</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/03/18/android%20gradle%20plugin%E4%B8%AD%E5%90%84%E7%A7%8D%E7%89%88%E6%9C%AC/" class="article-date">
+	  <time datetime="2019-03-18T01:24:25.000Z" itemprop="datePublished">March 18, 2019</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Android构建工具各种版本"><a href="#Android构建工具各种版本" class="headerlink" title="Android构建工具各种版本"></a>Android构建工具各种版本</h1><h2 id="minSdkVersion-lt-targetSdkVersion-lt-compileSdkVersion"><a href="#minSdkVersion-lt-targetSdkVersion-lt-compileSdkVersion" class="headerlink" title="minSdkVersion &lt;= targetSdkVersion &lt;= compileSdkVersion"></a>minSdkVersion &lt;= targetSdkVersion &lt;= compileSdkVersion</h2><h3 id="minSdkversion"><a href="#minSdkversion" class="headerlink" title="minSdkversion:"></a>minSdkversion:</h3><ul>
+<li>作用：告诉应用市场安装该应用的最低版本</li>
+</ul>
+<h3 id="compilesdkversion："><a href="#compilesdkversion：" class="headerlink" title="compilesdkversion："></a>compilesdkversion：</h3><ul>
+<li>作用：告诉 Gradle 用哪个 Android SDK 版本编译你的应用。使用任何新添加的 API 就需要使用对应 Level 的 Android SDK。<h3 id="targetsdkversion"><a href="#targetsdkversion" class="headerlink" title="targetsdkversion"></a>targetsdkversion</h3></li>
+<li>作用：主要是为了Android系统的向前兼容，targetSdkVersion 所暗示的许多行为变化都记录在 VERSION_CODES 文档中，所以当出现更新了新系统时，如果新系统版本大于了该应用的targetsdkversion版本，就不会在该应用使用最新的变化，<blockquote>
+<p>targetSdkVersion 是 Android 提供向前兼容的主要依据，在应用的 targetSdkVersion 没有更新之前系统不会应用最新的行为变化</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="buildtoolversion"><a href="#buildtoolversion" class="headerlink" title="buildtoolversion"></a>buildtoolversion</h3><p>-作用：表示构建工具的版本，其中包括了打包工具aapt、dx等等，所以应该大于compile版本</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>, <a class="article-category-link" href="/categories/Gradle/">Gradle</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Gradle/" rel="tag">Gradle</a></li></ul>
+
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
+    <article id="post-正则表达式"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2019/03/18/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">正则表达式（Java）</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/03/18/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" class="article-date">
+	  <time datetime="2019-03-18T01:24:25.000Z" itemprop="datePublished">March 18, 2019</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="正则表达式（Java）"><a href="#正则表达式（Java）" class="headerlink" title="正则表达式（Java）"></a>正则表达式（Java）</h1><hr>
+<h2 id="JAVA中的反斜杠"><a href="#JAVA中的反斜杠" class="headerlink" title="JAVA中的反斜杠　\:"></a>JAVA中的反斜杠　<code>\</code>:</h2><p>注意：  <strong>在java中反斜杠　\　本身具有特殊含义，表转义字符，所以要想打出 \ 就需要<code>\\</code></strong>(很多语言都是这样)<br>所以，作为转义字符，有<code>\n</code>表换行　…<br>要想输入<code>\</code>,就需要<code>\\</code>,　<code>System.out.print(&quot;\\&quot;)</code>—–&gt; \</p>
+<h2 id="常用的正则表达符号"><a href="#常用的正则表达符号" class="headerlink" title="常用的正则表达符号"></a>常用的正则表达符号</h2><ol>
+<li><code>.</code>  匹配所有单个字符</li>
+<li><code>\</code> 反斜杠，将下一字符标记为特殊字符、文本、反向引用或八进制转义符。例如，”n”匹配字符”n”。”\n”匹配换行符。序列”\\“匹配”\“，”\(“匹配”(“</li>
+<li><code>^</code> <code>$</code>分别表示从开始位置匹配和结尾位置匹配</li>
+<li><code>*</code> 零次或多次匹配前面的字符或子表达式。例如，zo* 匹配”z”和”zoo”</li>
+<li><code>+</code>一次或多次匹配前面的字符或子表达式</li>
+<li><code>?</code>零或一次匹配前面～～</li>
+<li>{n}表示正好匹配n次，{n,}表示<strong>至少</strong>匹配n次，{n,m}表示匹配  &gt;=n,&lt;=m</li>
+<li>(regex):括号表示捕获所匹配的字符串</li>
+<li>[xyz]：方括号表示字符集，匹配匹配包含的任一字符[^xyz]反向字符集</li>
+<li>[a-z] 表示所有小写字母</li>
+<li><code>\b</code>匹配一个字边界，即字与空格间的位置，如”er\b”匹配”never”中的”er”，但不匹配”verb”中的”er”。</li>
+<li><code>\d</code>表示数字，等效[0-9]　　　<code>\D</code>非数字</li>
+<li><code>\s</code>匹配任何空白字符，包括空格、制表符、换页符等。与 [ \f\n\r\t\v] 等效。<code>S</code>非空格</li>
+<li><code>\w</code>匹配任何字类字符，包括下划线。与”[A-Za-z0-9_]”等效。</li>
+</ol>
+<h2 id="Pattern-与Matcher类"><a href="#Pattern-与Matcher类" class="headerlink" title="Pattern 与Matcher类"></a>Pattern 与Matcher类</h2><p>使用；pattern 用其静态方法compile(regex) 创建，有split等方法<br>matcher可以用pattern.matcher(String)来创建，有matches相关，捕获方法<br>注意  </p>
+<ul>
+<li><p>find()方法是部分匹配，是查找输入串中与模式匹配的子串，如果该匹配的串有组还可以使用group()函数。</p>
+</li>
+<li><p>matches()是全部匹配，是将整个输入串与模式匹配，如果要验证一个输入的数据是否为数字类型或其他类型，一般要用matches()。</p>
+</li>
+<li><p>必须先match.find(),然后才会捕获匹配，然后match.group()获取find结果，<br>可以<code>while(match.find())</code>来一直搜索所有匹配到的</p>
+</li>
+</ul>
+<h2 id="分组"><a href="#分组" class="headerlink" title="分组"></a>分组</h2><blockquote>
+<p>从正则表达式左侧开始，每出现一个左括号“(”记做一个分组，分组编号从1开始。0代表整个表达式。</p>
+</blockquote>
+<p>主要用于matcher.find(),,,  matcher.group(index)<br>group(0)特指所匹配到的整个字符串，不计入group的length</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Java/">Java</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
+    <article id="post-android图片加载相关"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2019/03/15/android%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E7%9B%B8%E5%85%B3/">android 中图片单位及图片加载优化相关知识</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/03/15/android%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E7%9B%B8%E5%85%B3/" class="article-date">
+	  <time datetime="2019-03-15T01:24:25.000Z" itemprop="datePublished">March 15, 2019</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="android-中图片单位及图片加载优化相关知识"><a href="#android-中图片单位及图片加载优化相关知识" class="headerlink" title="android 中图片单位及图片加载优化相关知识"></a>android 中图片单位及图片加载优化相关知识</h1><hr>
+<h2 id="1-图片相关知识，像素，分辨率"><a href="#1-图片相关知识，像素，分辨率" class="headerlink" title="1. 图片相关知识，像素，分辨率"></a>1. 图片相关知识，像素，分辨率</h2><pre><code>px就是图片中最小的点，最小单位，单位色块,每个图都是由这些小像素点组成的，如基本的图片格式bitmap,注意像素的大小没有固定的长度，不同设备上一个单位的像素色块的大小是不一样的
+分辨率=画面水平方向的像素值 * 画面垂直方向的像素值。
+分辨率可以分为两方面：屏幕分辨率和图像分辨率。
+屏幕分辨率如1024*768,就表示设备水平方向上有1024个像素点，垂直方向上有768个
+图片分辨率也如上所说，比如如果某图片是500*200,就表示如果这个图片一比一显示的话，就是水平方向有500个像素点，而垂直方向有200个.
+而像素点的大小不一样，所以同一张分辨率的图片在不同尺寸的显示器上很可能显示不同大小，或者即便尺寸相同，分辨率高的那个图片显示会小
+像素越高，单个面积越小，显示的画质就越细致（当然要有相应分辨率的图片）
+
+补充：图片的放大缩小：
+放大是通过算法认为插入很多像素，所以如果放的很大，有效像素就很少，就会变得模糊
+缩小是通过一定的算法删去一部分像素，所以会在细节上对视一小部分像素
+
+所以如果图像分辨率小于显示器分辨率时，第一种是显示实际大小，但不是全屏，第二种是放大来全屏显示
+如果大于显示器分辨率，第一种是局部显示（全屏），可拖放，第二种是通过缩小全屏显示
+
+finally,虽然不同设备上像素块大小会不一样，但是同一台硬件设备上的屏幕分辨率、像素块大小是不会变的。PC电脑上之所以可以调整屏幕分辨率，其实也是通过算法转换了</code></pre><h2 id="1-android-图片，控件大小相关单位"><a href="#1-android-图片，控件大小相关单位" class="headerlink" title="1.android 图片，控件大小相关单位"></a>1.android 图片，控件大小相关单位</h2><ul>
+<li><code>px</code>:<br>(Pixel像素)构成图像的基本单元，但是单个像素的大小不固定，所以在不同尺寸设备上会有拉伸缩放，不推荐</li>
+<li><code>dpi</code>:<br>是指屏幕上每英寸距离中有多少个像素点，dpi=dpi=√hight^2+width^2 / size  (android以160dpi为标准)</li>
+<li><strong>dp(dip)</strong> 设备独立像素 device independent pixel<br>一般都用这个作单位，顾名思义，独立，对于相同尺寸的手机，即使分辨率不同，同DP的组件占用屏幕比例相同，UI效果也相同。（注意，是相同的尺寸）  dp可以维护Android组件自身的比例平衡，不至于在不同屏幕上变形<br>转换公式：<code>px = dp * (dpi/160)</code></li>
+<li>sp<br> 主要用于字体，使得字体可以根据用户手机设置来修改字体大小</li>
+</ul>
+<h3 id="注-如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议"><a href="#注-如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议" class="headerlink" title="注:如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议"></a>注:如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议</h3><p>可通过：dpi可以通过DisplayMetrics类的densityDpi属性获取当前手机的dpi数值，该类也可以获取到跟屏幕密度有关的其它属性。一般获取DisplayMetrics类有以下方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">方式1:</span><br><span class="line">//content:Activity,Content,Application. </span><br><span class="line">DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();</span><br><span class="line">方式2:</span><br><span class="line">//getSystemService可以通过 Activity,Content,Application等获取.</span><br><span class="line"> DisplayMetrics displayMetrics = new DisplayMetrics();</span><br><span class="line"> WindowManager windowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);</span><br><span class="line"> windowManager.getDefaultDisplay().getMetrics(displayMetrics);</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h2 id="屏幕适配"><a href="#屏幕适配" class="headerlink" title="屏幕适配"></a>屏幕适配</h2><p>主流推荐<a href="https://mp.weixin.qq.com/s?__biz=MzI1MzYzMjE0MQ==&mid=2247484502&idx=2&sn=a60ea223de4171dd2022bc2c71e09351&scene=21#wechat_redirect" target="_blank" rel="noopener">今日头条适配方案</a>但自己不是太懂。。。  </p>
+<ul>
+<li>使用<code>wrap_content、match_parent、weight</code></li>
+<li>使用相对布局</li>
+</ul>
+<h2 id="几个不同文件夹放的本地图片drawable"><a href="#几个不同文件夹放的本地图片drawable" class="headerlink" title="几个不同文件夹放的本地图片drawable"></a>几个不同文件夹放的本地图片drawable</h2><p> Bitmap.decodeResource() 源码，新图的高度 = 原图高度 * (设备的 dpi / 目录对应的 dpi )</p>
+<h2 id="bitmap"><a href="#bitmap" class="headerlink" title="bitmap"></a>bitmap</h2><p><strong>Bitmap</strong> 就是Android中的图片，一张位图，只有生成了bitmap,才占内存，可以通过<code>bitmap.getbytecount()</code>来获取该bitmap具体占用内存</p>
+<ul>
+<li><p>bitmap的创建：  </p>
+<ol>
+<li>通过已有的bitmap创建（可以对已有的bitmap进行各种操作放大，裁剪等）：<br><code>createBitmap(...)</code><br><code>createScaleBitmap(...)</code><br>…</li>
+<li>通过BitmapFactory，从各种数据源来解析，创建bitma对象：  <ul>
+<li>decodeByteArray(byte[] data, int offset, int length)：从指定的字节数组的offset位置开始，将长度为length的字节数据解析成Bitmap对象。</li>
+<li>decodeFile(String pathName)：从pathName指定的文件中解析、创建Bitmap对象。</li>
+<li>decodeFileDescriptor(FileDescriptor fd)：从FileDescriptor对应的文件中解析、创建Bitmap对象。</li>
+<li>decodeResource(Resources res, int id)：根据给定的资源ID从指定资源中解析、创建Bitmap对象。</li>
+<li>decodeStream(InputStream is)：从指定的输入流中解析、创建Bitmap对象。</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>BitmapFactory.Options  </p>
+<ol>
+<li>BitmapFactory.Options类是BitmapFactory对图片<strong>进行解码时</strong>使用的一个配置参数类，其中定义了一系列的public成员变量，每个成员变量代表一个配置参数。  </li>
+<li><code>inperferredConfig</code>参数,设置图片使用的颜色模式</li>
+<li><code>inJustDecodeBounds</code>，true—&gt;告诉BitmapFactory只是获得长宽，不用加载bitmap到内存中，返回null  </li>
+<li><code>inSmapleSize</code> 尺寸压缩，减少图片水平竖直像素点（分辨率）只能缩小，且为2的倍数，（&lt;1时自动变为1）</li>
+</ol>
+</li>
+<li><p>Matrix</p>
+<ol>
+<li>matrix类，即矩阵，可以对图片bitmap矩阵进行一些列线性变换，放大，旋转，位移等等 </li>
+</ol>
+</li>
+</ul>
+<h2 id="图片的三层缓存"><a href="#图片的三层缓存" class="headerlink" title="图片的三层缓存"></a>图片的三层缓存</h2><h3 id="加载图片时，应一次从内存—-gt-本地—-gt-网络去寻找图片资源，并以图片的url值为key"><a href="#加载图片时，应一次从内存—-gt-本地—-gt-网络去寻找图片资源，并以图片的url值为key" class="headerlink" title="加载图片时，应一次从内存—&gt;本地—&gt;网络去寻找图片资源，并以图片的url值为key"></a>加载图片时，应一次从内存—&gt;本地—&gt;网络去寻找图片资源，并以图片的url值为key</h3><ol>
+<li>从内存获取：使用的是LruCache这个类（Least Recently Used ）即最近最少使用算法，内部维护一个LinkedHashMap</li>
+<li>从文件获取：google推荐的DiskLruCache，硬盘缓存类</li>
+<li>网络</li>
+<li>在上传，缓存本地时最好压缩一下，insamplesize尺寸压缩和compress质量压缩，以减小文件大小</li>
+</ol>
+<h2 id="加载网络大图，多图优化"><a href="#加载网络大图，多图优化" class="headerlink" title="加载网络大图，多图优化"></a>加载网络大图，多图优化</h2><p>加载大图，长图时，可以用<code>BitmapRegionDecoder</code>进行图片的局部加载</p>
+<p>参考：<br><a href="https://developer.android.google.cn/guide/practices/screens_support" target="_blank" rel="noopener">google-androld</a><br><a href="https://blog.csdn.net/qq_31382907/article/details/81033596" target="_blank" rel="noopener">csdn1</a><br><a href="https://www.zhihu.com/question/21149600/answer/29971490" target="_blank" rel="noopener">zhihu</a></p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" rel="tag">图片加载</a></li></ul>
+
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
+    <article id="post-c++坑之构造函数"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2018/12/16/c++%E5%9D%91%E4%B9%8B%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/">c++坑之拷贝函数总结</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2018/12/16/c++%E5%9D%91%E4%B9%8B%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/" class="article-date">
+	  <time datetime="2018-12-16T15:35:46.000Z" itemprop="datePublished">December 16, 2018</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="C-构造函数"><a href="#C-构造函数" class="headerlink" title="C++构造函数"></a>C++构造函数</h3><hr>
+<ol>
+<li><p>c++类的中有两个特殊的构造函数(<code>都是构造函数</code>)<br>(1)无参构造函数<br> (2)拷贝构造函数<code>classname (const classname &amp;obj)</code>（默认的拷贝构造函数—常引用型，拷贝构造函数是一种特殊的构造函数，函数的名称必须和类名称一致，它必须的一个参数是本类型的一个引用变量）</p>
+</li>
+<li><p>它们的特殊之处在于：<br>(1)当类中没有定义任何构造函数时，编译器会默认提供一个无参构造函数且其函数体为空；<br>(2)当类中没有定义拷贝构造函数时，编译器会默认提供一个拷贝构造函数，进行成员变量之间的拷贝。(这个拷贝操作是浅拷贝)  </p>
+</li>
+</ol>
+<p><strong>注意：也就是说,构造函数包含拷贝函数，如果定义了一个拷贝函数，就没有默认的构造函数了</strong></p>
+<h2 id="拷贝函数的使用时机"><a href="#拷贝函数的使用时机" class="headerlink" title="拷贝函数的使用时机"></a>拷贝函数的使用时机</h2><h4 id="当用一个已初始化过了的自定义类类型对象去初始化另一个新构造的对象的时候，拷贝构造函数就会被自动调用。也就是说，当类的对象需要拷贝时，拷贝构造函数将会被调用。以下情况都会调用拷贝构造函数："><a href="#当用一个已初始化过了的自定义类类型对象去初始化另一个新构造的对象的时候，拷贝构造函数就会被自动调用。也就是说，当类的对象需要拷贝时，拷贝构造函数将会被调用。以下情况都会调用拷贝构造函数：" class="headerlink" title="当用一个已初始化过了的自定义类类型对象去初始化另一个新构造的对象的时候，拷贝构造函数就会被自动调用。也就是说，当类的对象需要拷贝时，拷贝构造函数将会被调用。以下情况都会调用拷贝构造函数："></a>当用一个已初始化过了的自定义类类型对象去初始化另一个新构造的对象的时候，拷贝构造函数就会被自动调用。也就是说，当类的对象需要拷贝时，拷贝构造函数将会被调用。以下情况都会调用拷贝构造函数：</h4><ul>
+<li>一个对象以值传递的方式传入函数体   </li>
+<li>一个对象以值传递的方式从函数返回   </li>
+<li>一个对象需要通过另外一个对象进行初始化  </li>
+<li>c++STL容器也是调用拷贝构造函数</li>
+</ul>
+<h2 id="深拷贝和浅拷贝"><a href="#深拷贝和浅拷贝" class="headerlink" title="深拷贝和浅拷贝"></a>深拷贝和浅拷贝</h2><p>1.深拷贝是为指针分配了地址(比如为其new了一个新的)而浅拷贝只是赋值－－－pr1=pr2,此时浅拷贝两个的对象的某个属性的指针指向同一块地址。(图：浅拷贝，深拷贝)<br><img src="http://hi.csdn.net/attachment/201102/23/0_1298440940377T.gif" alt="浅拷贝"><br><img src="http://hi.csdn.net/attachment/201102/23/0_12984409785Oby.gif" alt="深拷贝"></p>
+<blockquote>
+<p>深拷贝和浅拷贝可以简单理解为：如果一个类拥有资源，当这个类的对象发生复制过程的时候，资源重新分配，这个过程就是深拷贝，反之，没有重新分配资源，就是浅拷贝</p>
+</blockquote>
+<h2 id="等号运算符与拷贝函数"><a href="#等号运算符与拷贝函数" class="headerlink" title="等号运算符与拷贝函数"></a>等号运算符与拷贝函数</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">如果对象在申明的同时马上进行的初始化操作，则称之为拷贝运算。例如：</span><br><span class="line">        class1 A(&quot;af&quot;); class1 B=A;</span><br><span class="line">    此时其实际调用的是B(A)这样的浅拷贝操作。</span><br><span class="line">如果对象在申明之后，在进行的赋值运算，我们称之为赋值运算。例如：</span><br><span class="line">        class1 A(&quot;af&quot;); class1 B;</span><br><span class="line">        B=A;</span><br><span class="line">    此时实际调用的类的缺省赋值函数B.operator=(A);</span><br></pre></td></tr></table></figure>
+<p><strong>等号运算符类似浅拷贝，所以，class有指针，不仅一定要重写拷贝构造函数（写深拷贝），还要重载<code>=</code>运算符８</strong></p>
+<p>##NOTE</p>
+<ol>
+<li>尽量避免值传递，最好用指针和引用.如果对象有内部指针指向动态分配的堆内存，丝毫不要考虑把对象按值传递给函数，要按引用传递。并记住：若函数不能改变参数对象的状态和目标对象的状态，则要使用const修饰符 </li>
+<li>对于类的成员需要动态申请堆空间的类的对象，大家都知道，我们都最好要overload其赋值函数和拷贝函数。拷贝构造函数是没有任何返回类型的，这点毋庸置疑。 而赋值函数可以返回多种类型，例如以上讲的void,类本身class1，以及类的引用 class &amp; (可以实现连等)</li>
+</ol>
+<h3 id="参考两篇很好的博客，博客２"><a href="#参考两篇很好的博客，博客２" class="headerlink" title="参考两篇很好的博客，博客２"></a>参考两篇很好的<a href="https://blog.csdn.net/lwbeyond/article/details/6202256" target="_blank" rel="noopener">博客</a>，<a href="https://www.cnblogs.com/Winston/archive/2008/06/03/1212700.html" target="_blank" rel="noopener">博客２</a></h3>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/c/">c++</a>
+
+      
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
+
+
+  <nav id="page-nav">
+    
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next</a>
+  </nav>
 
 </section>
           <aside id="sidebar">
@@ -308,8 +1026,68 @@ var themeMenus = {};
               <div class="widget-entry-summary" style="margin: 0;">
             
 
+              <h6 style="margin: 0;"><a href="/2019/11/08/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/">Android线程通信</a></h6>
+              <span>November 8, 2019</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
               <h6 style="margin: 0;"><a href="/2019/11/08/hello-world/">Hello World</a></h6>
               <span>November 8, 2019</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2019/08/10/Android%E8%B6%85%E9%95%BF%E5%9B%BE%E5%8A%A0%E8%BD%BD%E4%B8%8Esubsampling%20scale%20image%20view%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90/">android 中图片单位及图片加载优化相关知识</a></h6>
+              <span>August 10, 2019</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2019/05/14/Android%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/">Android 网络请求心得</a></h6>
+              <span>May 14, 2019</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2019/04/25/AndroidFragment%E5%AD%A6%E4%B9%A0/">Android FragmentManager使用</a></h6>
+              <span>April 25, 2019</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2019/04/08/Android%20JetPack%20%E6%9E%B6%E6%9E%84/">Android JetPack 架构</a></h6>
+              <span>April 8, 2019</span>
             </div>
 
           </li>
@@ -320,19 +1098,40 @@ var themeMenus = {};
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Android/">Android</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Gradle/">Gradle</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JetPack/">JetPack</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/c/">c++</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BB%8B%E7%BB%8D/">介绍</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/">开发工具</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/">网络请求</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/" rel="tag">Git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradle/" rel="tag">Gradle</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JetPack/" rel="tag">JetPack</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fragment/" rel="tag">fragment</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/j%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag">j机器学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/" rel="tag">leetcode</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E6%B2%BB%E6%B3%95/" rel="tag">分治法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" rel="tag">图片加载</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" rel="tag">网络请求</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/Gradle/" style="font-size: 13.33px;">Gradle</a> <a href="/tags/Java/" style="font-size: 16.67px;">Java</a> <a href="/tags/JetPack/" style="font-size: 10px;">JetPack</a> <a href="/tags/fragment/" style="font-size: 10px;">fragment</a> <a href="/tags/j%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">j机器学习</a> <a href="/tags/leetcode/" style="font-size: 10px;">leetcode</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/%E5%88%86%E6%B2%BB%E6%B3%95/" style="font-size: 10px;">分治法</a> <a href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" style="font-size: 13.33px;">图片加载</a> <a href="/tags/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" style="font-size: 10px;">网络请求</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">设计模式</a>
+    </div>
+  </div>
+
   
     
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 

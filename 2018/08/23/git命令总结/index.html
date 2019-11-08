@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <!-- PACE Progress Bar START -->
+  
+    <script src="https://raw.githubusercontent.com/HubSpot/pace/v1.0.2/pace.min.js"></script>
+    <link rel="stylesheet" href="https://github.com/HubSpot/pace/raw/master/themes/orange/pace-theme-flash.css">
+  
+  
+
+  <!-- PACE Progress Bar START -->
+
+  
+  <title>git命令总结 | WPY&#39;s Android Tour</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="keywords" content="Git" />
+  
+  
+  
+  
+  <meta name="description" content="Linus Torvalds —— Just For Fun">
+<meta name="keywords" content="Git">
+<meta property="og:type" content="article">
+<meta property="og:title" content="git命令总结">
+<meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2018&#x2F;08&#x2F;23&#x2F;git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93&#x2F;index.html">
+<meta property="og:site_name" content="WPY&#39;s Android Tour">
+<meta property="og:description" content="Linus Torvalds —— Just For Fun">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https:&#x2F;&#x2F;upload-images.jianshu.io&#x2F;upload_images&#x2F;9368980-438c39d7637e7653.png?imageMogr2&#x2F;auto-orient&#x2F;strip%7CimageView2&#x2F;2&#x2F;w&#x2F;1240">
+<meta property="og:image" content="https:&#x2F;&#x2F;upload-images.jianshu.io&#x2F;upload_images&#x2F;9368980-4269287f91b1d837.png?imageMogr2&#x2F;auto-orient&#x2F;strip%7CimageView2&#x2F;2&#x2F;w&#x2F;1240">
+<meta property="og:image" content="https:&#x2F;&#x2F;upload-images.jianshu.io&#x2F;upload_images&#x2F;9368980-237c508f50a0506f.png?imageMogr2&#x2F;auto-orient&#x2F;strip%7CimageView2&#x2F;2&#x2F;w&#x2F;1240">
+<meta property="og:image" content="https:&#x2F;&#x2F;upload-images.jianshu.io&#x2F;upload_images&#x2F;9368980-558c67422c4084c5.png?imageMogr2&#x2F;auto-orient&#x2F;strip%7CimageView2&#x2F;2&#x2F;w&#x2F;1240">
+<meta property="og:updated_time" content="2019-11-08T09:13:36.527Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;upload-images.jianshu.io&#x2F;upload_images&#x2F;9368980-438c39d7637e7653.png?imageMogr2&#x2F;auto-orient&#x2F;strip%7CimageView2&#x2F;2&#x2F;w&#x2F;1240">
+  
+    <link rel="alternate" href="/atom.xml" title="WPY&#39;s Android Tour" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="https://cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" >
+  <link rel="stylesheet" href="/css/hiero.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+  
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/my.css">
+  <!-- Google Adsense -->
+  
+</head>
+
+<script>
+var themeMenus = {};
+
+  themeMenus["/"] = "Home"; 
+
+  themeMenus["/archives"] = "Archives"; 
+
+  themeMenus["/categories"] = "Categories"; 
+
+  themeMenus["/tags"] = "Tags"; 
+
+  themeMenus["/about"] = "About"; 
+
+</script>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  <header id="allheader" class="site-header" role="banner">
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="WPY&#39;s Android Tour" rel="home"> WPY&#39;s Android Tour </a>
+            
+          </h1>
+
+          
+            <div class="site-description">android开发与开源框架源码学习，java，kotlin等语言学习，linux操作系统</div>
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+            <div class="clearfix sf-menu">
+
+              <ul id="main-nav" class="nmenu sf-js-enabled">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="originBgDiv" style="background: #fff; width: 100%;">
+
+      <div style="max-height:600px; overflow: hidden;  display: flex; display: -webkit-flex; align-items: center;">
+        <img id="originBg" width="100%" alt="" src="">
+      </div>
+
+  </div>
+
+  <script>
+  function setAboutIMG(){
+      var imgUrls = "css/images/pose.jpg,https://source.unsplash.com/collection/954550/1920x1080".split(",");
+      var random = Math.floor((Math.random() * imgUrls.length ));
+      if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+        document.getElementById("originBg").src=imgUrls[random];
+      } else {
+        document.getElementById("originBg").src='/' + imgUrls[random];
+      }
+  }
+  bgDiv=document.getElementById("originBgDiv");
+  if(location.pathname.match('about')){
+    setAboutIMG();
+    bgDiv.style.display='block';
+  }else{
+    bgDiv.style.display='none';
+  }
+  </script>
+
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-git命令总结" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      git命令总结
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2018/08/23/git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/" class="article-date">
+	  <time datetime="2018-08-23T15:35:46.000Z" itemprop="datePublished">August 23, 2018</time>
+	</a>
+
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Linus-Torvalds-——-Just-For-Fun"><a href="#Linus-Torvalds-——-Just-For-Fun" class="headerlink" title="Linus Torvalds —— Just For Fun"></a><strong>Linus Torvalds —— Just For Fun</strong></h3><a id="more"></a>
+<p>HEAD头指针</p>
+<h3 id="1-获取帮助"><a href="#1-获取帮助" class="headerlink" title="1.获取帮助"></a>1.获取帮助</h3><ul>
+<li>git help <verb></li>
+<li>git <verb> –help<h3 id="2-建立仓库"><a href="#2-建立仓库" class="headerlink" title="2.建立仓库"></a>2.建立仓库</h3>（工作平台）</li>
+<li>git init      </li>
+<li>git add &lt;文件名&gt;( 跟踪该文件)（添加到暂存区）</li>
+<li>git commit -m“ ….”（添加到git仓库）<br>git commit 不加参数则直接打开vim编译与.gitignore格式相同，+’-m’则直接在命令行中输入提交信息<br>如果＋ “ -a”参数则可以跳过add 直接一步操作，跳过使用暂存区<br>如　git commit -a -m”跳过暂存区”</li>
+<li>git push [远程仓库名]  [远程分支]<h3 id="3-git-别名"><a href="#3-git-别名" class="headerlink" title="3. git 别名"></a>3. git 别名</h3></li>
+<li>如　git config –global alias.ci commit ,这输入 git commit 时只需要 git ci<h3 id="4-查看状态"><a href="#4-查看状态" class="headerlink" title="4.查看状态"></a>4.查看状态</h3></li>
+<li>git status</li>
+<li>git diff<br>查看工作区与已暂存的文件的区别，更新了哪些，也就是修改之后还没有暂存起来的变化内容</li>
+<li>git log　(-p查看不同，-num 查看最近几次　-3,-2)</li>
+<li>git reflog 来查看引用日志</li>
+<li>git remote show origin(查看origin仓库的更多信息，分支跟踪等信息)</li>
+<li>git show [commit id]－－查看某次提交修改了什么  <h3 id="5-gitignore"><a href="#5-gitignore" class="headerlink" title="5. .gitignore"></a>5. .gitignore</h3><blockquote>
+<p>• 所有空行或者以 # 开头的行都会被 Git 忽略。<br>• 可以使用标准的 glob 模式匹配。<br>• 匹配模式可以以(/)开头防止递归。<br>• 匹配模式可以以(/)结尾指定目录。<br>• 要忽略指定模式以外的文件或目录,可以在模式前加上惊叹号(!)取反。</p>
+</blockquote>
+</li>
+</ul>
+<blockquote>
+<p>所谓的<code>glob 模式</code>是指 shell 所使用的简化了的正则表达式。星号(<em>)匹配零个或多个任意字符;[abc] 匹配任何一个列在方括号中的字符(这个例子要么匹配一个 a,要么匹配一个 b,要么匹配一个 c);问号(?)只匹配一个任意字符;如果在方括号中使用短划线分隔两个字符,表示所有在这两个字符范围内的都可以匹配(比如[0-9] 表示匹配所有 0 到 9 的数字)。使用两个星号(</em>) 表示匹配任意中间目录,比如<code>a/**/z</code> 可以匹配 a/z,a/b/z 或 <code>a/b/c/z</code>等。</p>
+</blockquote>
+<p>###6.撤销操作</p>
+<ul>
+<li><p>use “git checkout – <file>…” to discard changes in working<br>如文件readme<br>命令git checkout – readme.txt意思就是，把readme.txt文件在工作区的修改全部撤销，这里有两种情况：</p>
+<ol>
+<li><p>一种是readme.txt自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；</p>
+<ol start="2">
+<li>一种是readme.txt已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。</li>
+</ol>
+<p>总之，就是让这个文件回到<strong>最近一次git commit或git add时</strong>的状态。</p>
+</li>
+</ol>
+</li>
+<li><p>use “git reset HEAD <file>…” to unstage<br>对于上面的第二种，如果已经add到暂存区，可以先use “git reset HEAD <file>…” ，然后再git checkout – <file>.使他完全撤销更改</p>
+<h5 id="版本回退"><a href="#版本回退" class="headerlink" title="版本回退"></a>版本回退</h5></li>
+<li><p>用git log / git reflog查看commit id</p>
+</li>
+<li><p>git reset –hard [commit id] /  git reset –hard [HEAD^]　(一个^代表上一个提交)</p>
+<h3 id="7-删除文件"><a href="#7-删除文件" class="headerlink" title="7.删除文件"></a>7.删除文件</h3></li>
+<li><p>git rm <file><br>删除工作区和git仓库中的文件</p>
+</li>
+<li><p>git rm –cached<br>只取消跟踪，本删除本地工作区文件</p>
+<h3 id="8-远程仓库"><a href="#8-远程仓库" class="headerlink" title="8.远程仓库"></a>8.远程仓库</h3></li>
+<li><p>git remote 列出远程服务器的简写　（-v详细）</p>
+</li>
+<li><p>git remote add <shortname> <url>添加远程仓库</p>
+<ul>
+<li>git clone [url] [name] (可添加自定义仓库名)　克隆，在当前目录下建立一个文件夹</li>
+</ul>
+</li>
+<li><p>git fetch [remote-name]抓取远程仓库的所有数据<br>如果你使用 clone 命令克隆了一个仓库,命令会自动将其添加为远程仓库并默认以 “origin” 为简写。所以,git fetch origin 会抓取克隆(或上一次抓取)后新推送的所有工作。必须注意 git fetch 命令会将数据拉取到你的本地仓库 - 它并不会自动合并或修改你当前的工作。当准备好时你必须手动将其合并入你的工作。</p>
+</li>
+<li><p>git pull 会抓取并自动合并到当前分支</p>
+</li>
+<li><p>git remote show origin(查看origin仓库的更多信息)</p>
+</li>
+<li><p>git remote rename [原] [新] 远程仓库重命名</p>
+</li>
+<li><p>git remote rm <name>远程仓库删除</p>
+</li>
+</ul>
+<h2 id="git分支-（重点）"><a href="#git分支-（重点）" class="headerlink" title="git分支　（重点）"></a>git分支　（重点）</h2><p>注意，ｇｉｔ还有一个指针HEAD,指向当前分支的指针（也就是当前分支的别名）<br>-git branch <name> 创建分支<br>-git checkout <br name>切换分支　　git checkout -b &lt;&gt;创建分支并切换到这个分支上</p>
+<blockquote>
+<p>在你这么做之前,要留意你的工作目录和暂存区里那些还没有被提交的修改,它可能会和你即将检出的分支产生冲突从而阻止 Git 切换到该分支。最好的方法是,在你切换分支之前,保持好一个干净的状态。</p>
+</blockquote>
+<ul>
+<li>git merge <name > 将当前分支与name 分支合并（如果时直接上游将快进，不会用冲突）</li>
+<li>git branch -d <name>删除分支</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/9368980-438c39d7637e7653.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="2018-08-23 00-24-35 的屏幕截图.png"><br>master和hotfix直接合并，快进<br><img src="https://upload-images.jianshu.io/upload_images/9368980-4269287f91b1d837.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="2018-08-23 00-31-51 的屏幕截图.png"><br>master和iss53为和并提交</p>
+<h4 id="合并冲突"><a href="#合并冲突" class="headerlink" title="合并冲突"></a>合并冲突</h4><ul>
+<li>git status 查看冲突文件及位置<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:index.html</span><br><span class="line">&lt;div id=&quot;footer&quot;&gt;contact : email.support@github.com&lt;/div&gt;</span><br><span class="line">=======</span><br><span class="line">&lt;div id=&quot;footer&quot;&gt;</span><br><span class="line">please contact us at support@github.com</span><br><span class="line">&lt;/div&gt;</span><br><span class="line">&gt;&gt;&gt;&gt;&gt;&gt;&gt; iss53:index.html</span><br></pre></td></tr></table></figure>
+上面HEADＢ表示当前分支的文件内容，下面表示合并分支的内容</li>
+<li><code>git mergetool</code><br>第一次使用要设置： git config merge.tool vimdiff  <a href="https://gist.github.com/karenyyng/f19ff75c60f18b4b8149" target="_blank" rel="noopener">参见</a><br>这个命令使用图形化界面来合并冲突</li>
+<li>git add 标记合并的文件</li>
+<li>git commit 合并完成后输入<br>然后显示一个文件，可加如详细信息</li>
+</ul>
+<h4 id="分支管理"><a href="#分支管理" class="headerlink" title="分支管理"></a>分支管理</h4><ul>
+<li><p>git branch 显示当前所有分支</p>
+</li>
+<li><p>git branch -v 查看分支及其最后一次提交 </p>
+<h4 id="远程分支"><a href="#远程分支" class="headerlink" title="远程分支"></a>远程分支</h4><p>(remote)/(branch) 形式命名<br>git clone是会自动建立远程分支指针，并以远程的master分支为基础建立本地master分支每次　git fetch d都会更新远程分支指针，本地只能切换到远程分支查看，而不能操作，也就是只要不和远程服务器连接，远程指针就不会移动，但是可以git checkout -b (remote)/(branch)这样以远程分支建立本地分支进行操作<br><img src="https://upload-images.jianshu.io/upload_images/9368980-237c508f50a0506f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="2018-08-23 00-48-50 的屏幕截图.png"></p>
+<h5 id="拉取操作"><a href="#拉取操作" class="headerlink" title="拉取操作"></a>拉取操作</h5></li>
+<li><p>git fetch &lt;远程仓库名&gt;拉取数据并移动远程仓库指针<br>当 git fetch 命令从服务器上抓取本地没有的数据时,它并不会修改工作目录中的内容。它只会获取数据然后让你自己合并。然而,有一个命令叫作 git pull 在大多数情况下它的含义是一个 git fetch 紧接着一个git merge 命令。</p>
+</li>
+<li><p>git merge origin/serverfix 将这些工作合并到当前所在的分支<br><img src="https://upload-images.jianshu.io/upload_images/9368980-558c67422c4084c5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="2018-08-23 00-50-28 的屏幕截图.png"></p>
+</li>
+<li><p>git push origin &lt;本地分支的名字&gt;<br>建立远程分支，还本地分支名字一样</p>
+</li>
+<li><p>git push origin serverfix:serverfix,<br>它会做同样的事 - 相当于它说,“推送本地的 serverfix 分支,将其作为远程仓库的 serverfix 分支”可以通过这种格式来推送本地分支到一个命名不相同的远程分支。如果并不想让远程仓库上的分支叫做 serverfix,可以运行 git push origin serverfix:awesomebranch 来将本地的 serverfix 分支推送到远程仓库上的 awesomebranch 分支</p>
+</li>
+<li><p>git checkout -b serverfix origin/serverfix<br>git checkout -b [branch] [remotename]/[branch]<br>fetch到新的远程分支后不会在本地自动建立分支，只会有一个<orign><branch>的只读的远程分支，可以执行改命令，会给你一个用于工作的本地分支,并且起点位于 origin/serverfix。</p>
+</li>
+<li><p>git checkout –track origin/serverfix创建一个跟踪分支（git pull /git push自动识别，）</p>
+</li>
+<li><p>git checkout -b [branch] [remotename]/[branch]  跟踪分支<br>git remote show origin(可查看</p>
+</li>
+<li><p>git push origin –delete [remote branch]  删除远程分支</p>
+</li>
+</ul>
+<h4 id="最后，一个远程仓库版本回退的操作"><a href="#最后，一个远程仓库版本回退的操作" class="headerlink" title="最后，一个远程仓库版本回退的操作"></a>最后，一个远程仓库版本回退的操作</h4><ul>
+<li>git push -f(加上-f 强制执行)<br>现在本地master分支上回退版本，然后加上　-f 强制推到远程仓库</li>
+</ul>
+<p>参考：《Pro Git》</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Git/">Git</a>, <a class="article-category-link" href="/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/">开发工具</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/" rel="tag">Git</a></li></ul>
+
+      
+            
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/09/14/Machine%20Learning/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Machine Learning
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/06/08/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">java 泛型</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article" style="overflow-y: scroll; max-width: 28%;">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linus-Torvalds-——-Just-For-Fun"><span class="nav-number">1.</span> <span class="nav-text">Linus Torvalds —— Just For Fun</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-获取帮助"><span class="nav-number">2.</span> <span class="nav-text">1.获取帮助</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-建立仓库"><span class="nav-number">3.</span> <span class="nav-text">2.建立仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-git-别名"><span class="nav-number">4.</span> <span class="nav-text">3. git 别名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-查看状态"><span class="nav-number">5.</span> <span class="nav-text">4.查看状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-gitignore"><span class="nav-number">6.</span> <span class="nav-text">5. .gitignore</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#版本回退"><span class="nav-number">6.0.1.</span> <span class="nav-text">版本回退</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-删除文件"><span class="nav-number">7.</span> <span class="nav-text">7.删除文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-远程仓库"><span class="nav-number">8.</span> <span class="nav-text">8.远程仓库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#git分支-（重点）"><span class="nav-number"></span> <span class="nav-text">git分支　（重点）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#合并冲突"><span class="nav-number">0.1.</span> <span class="nav-text">合并冲突</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分支管理"><span class="nav-number">0.2.</span> <span class="nav-text">分支管理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#远程分支"><span class="nav-number">0.3.</span> <span class="nav-text">远程分支</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#拉取操作"><span class="nav-number">0.3.1.</span> <span class="nav-text">拉取操作</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#最后，一个远程仓库版本回退的操作"><span class="nav-number">0.4.</span> <span class="nav-text">最后，一个远程仓库版本回退的操作</span></a></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+      <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2019 WPY&#39;s Android Tour All Rights Reserved.
+          
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/iTimeTraveler/hexo-theme-hiero" target="_blank">hiero</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var contentdiv = document.getElementById("content");
+
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+</script>
+
+<!-- Custome JS -->
+<script src="/js/my.js"></script>
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>
+
+
+<script src="/js/scripts.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://dnqof95d40fo6.cloudfront.net/atw7f8.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>

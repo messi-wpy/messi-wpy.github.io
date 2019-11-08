@@ -13,21 +13,23 @@
   <!-- PACE Progress Bar START -->
 
   
-  <title>hello world | WPY&#39;s Android Tour</title>
+  <title>android构建工具各种版本 | WPY&#39;s Android Tour</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
+  <meta name="keywords" content="AndroidGradle" />
   
   
   
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
-<meta name="keywords" content="android,java,kotlin,源码学习">
+  
+  <meta name="description" content="Android构建工具各种版本minSdkVersion &amp;lt;= targetSdkVersion &amp;lt;= compileSdkVersionminSdkversion: 作用：告诉应用市场安装该应用的最低版本  compilesdkversion： 作用：告诉 Gradle 用哪个 Android SDK 版本编译你的应用。使用任何新添加的 API 就需要使用对应 Level 的 And">
+<meta name="keywords" content="Android,Gradle">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;11&#x2F;08&#x2F;hello-world&#x2F;index.html">
+<meta property="og:title" content="Android构建工具各种版本">
+<meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;03&#x2F;18&#x2F;android%20gradle%20plugin%E4%B8%AD%E5%90%84%E7%A7%8D%E7%89%88%E6%9C%AC&#x2F;index.html">
 <meta property="og:site_name" content="WPY&#39;s Android Tour">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="Android构建工具各种版本minSdkVersion &amp;lt;= targetSdkVersion &amp;lt;= compileSdkVersionminSdkversion: 作用：告诉应用市场安装该应用的最低版本  compilesdkversion： 作用：告诉 Gradle 用哪个 Android SDK 版本编译你的应用。使用任何新添加的 API 就需要使用对应 Level 的 And">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-11-13T16:20:35.658Z">
+<meta property="og:updated_time" content="2019-11-08T09:13:36.527Z">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/atom.xml" title="WPY&#39;s Android Tour" type="application/atom+xml">
@@ -156,7 +158,7 @@ var themeMenus = {};
             
       <div id="content" class="outer">
         
-          <section id="main" style="float:none;"><article id="post-hello-world" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+          <section id="main" style="float:none;"><article id="post-android gradle plugin中各种版本" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -164,7 +166,7 @@ var themeMenus = {};
         
   
     <h1 class="thumb" class="article-title" itemprop="name">
-      Hello World
+      Android构建工具各种版本
     </h1>
   
 
@@ -172,8 +174,8 @@ var themeMenus = {};
     
     <div class="article-meta">
       
-	Posted on <a href="/2019/11/08/hello-world/" class="article-date">
-	  <time datetime="2019-11-08T09:14:06.778Z" itemprop="datePublished">November 8, 2019</time>
+	Posted on <a href="/2019/03/18/android%20gradle%20plugin%E4%B8%AD%E5%90%84%E7%A7%8D%E7%89%88%E6%9C%AC/" class="article-date">
+	  <time datetime="2019-03-18T01:24:25.000Z" itemprop="datePublished">March 18, 2019</time>
 	</a>
 
       
@@ -184,25 +186,29 @@ var themeMenus = {};
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <h1 id="Android构建工具各种版本"><a href="#Android构建工具各种版本" class="headerlink" title="Android构建工具各种版本"></a>Android构建工具各种版本</h1><h2 id="minSdkVersion-lt-targetSdkVersion-lt-compileSdkVersion"><a href="#minSdkVersion-lt-targetSdkVersion-lt-compileSdkVersion" class="headerlink" title="minSdkVersion &lt;= targetSdkVersion &lt;= compileSdkVersion"></a>minSdkVersion &lt;= targetSdkVersion &lt;= compileSdkVersion</h2><h3 id="minSdkversion"><a href="#minSdkversion" class="headerlink" title="minSdkversion:"></a>minSdkversion:</h3><ul>
+<li>作用：告诉应用市场安装该应用的最低版本</li>
+</ul>
+<h3 id="compilesdkversion："><a href="#compilesdkversion：" class="headerlink" title="compilesdkversion："></a>compilesdkversion：</h3><ul>
+<li>作用：告诉 Gradle 用哪个 Android SDK 版本编译你的应用。使用任何新添加的 API 就需要使用对应 Level 的 Android SDK。<h3 id="targetsdkversion"><a href="#targetsdkversion" class="headerlink" title="targetsdkversion"></a>targetsdkversion</h3></li>
+<li>作用：主要是为了Android系统的向前兼容，targetSdkVersion 所暗示的许多行为变化都记录在 VERSION_CODES 文档中，所以当出现更新了新系统时，如果新系统版本大于了该应用的targetsdkversion版本，就不会在该应用使用最新的变化，<blockquote>
+<p>targetSdkVersion 是 Android 提供向前兼容的主要依据，在应用的 targetSdkVersion 没有更新之前系统不会应用最新的行为变化</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="buildtoolversion"><a href="#buildtoolversion" class="headerlink" title="buildtoolversion"></a>buildtoolversion</h3><p>-作用：表示构建工具的版本，其中包括了打包工具aapt、dx等等，所以应该大于compile版本</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>, <a class="article-category-link" href="/categories/Gradle/">Gradle</a>
+
       
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Gradle/" rel="tag">Gradle</a></li></ul>
+
       
             
       
@@ -236,19 +242,19 @@ var themeMenus = {};
     
 <nav id="article-nav">
   
-    <a href="/2019/11/08/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/04/08/Android%20JetPack%20%E6%9E%B6%E6%9E%84/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          Android线程通信
+          Android JetPack 架构
         
       </div>
     </a>
   
   
-    <a href="/2019/08/10/Android%E8%B6%85%E9%95%BF%E5%9B%BE%E5%8A%A0%E8%BD%BD%E4%B8%8Esubsampling%20scale%20image%20view%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2019/03/18/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">android 中图片单位及图片加载优化相关知识</div>
+      <div class="article-nav-title">正则表达式（Java）</div>
     </a>
   
 </nav>
@@ -262,7 +268,7 @@ var themeMenus = {};
     <div id="toc" class="toc-article" style="overflow-y: scroll; max-width: 28%;">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol>
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Android构建工具各种版本"><span class="nav-number">1.</span> <span class="nav-text">Android构建工具各种版本</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#minSdkVersion-lt-targetSdkVersion-lt-compileSdkVersion"><span class="nav-number">1.1.</span> <span class="nav-text">minSdkVersion &lt;= targetSdkVersion &lt;= compileSdkVersion</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#minSdkversion"><span class="nav-number">1.1.1.</span> <span class="nav-text">minSdkversion:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#compilesdkversion："><span class="nav-number">1.1.2.</span> <span class="nav-text">compilesdkversion：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#targetsdkversion"><span class="nav-number">1.1.3.</span> <span class="nav-text">targetsdkversion</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#buildtoolversion"><span class="nav-number">1.1.4.</span> <span class="nav-text">buildtoolversion</span></a></li></ol></li></ol></li></ol>
     
     </div>
   </aside>
