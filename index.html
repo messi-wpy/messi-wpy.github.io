@@ -157,6 +157,103 @@ var themeMenus = {};
         
           <section id="main">
   
+    <article id="post-android View的事件分发机制"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2019/11/12/android%20View%E7%9A%84%E4%BA%8B%E4%BB%B6%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6/">Android view的事件分发机制</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/11/12/android%20View%E7%9A%84%E4%BA%8B%E4%BB%B6%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6/" class="article-date">
+	  <time datetime="2019-11-11T16:00:00.000Z" itemprop="datePublished">November 12, 2019</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Android-自定义view"><a href="#Android-自定义view" class="headerlink" title="Android 自定义view"></a>Android 自定义view</h1><p>Android自定义view有如下步骤：</p>
+<ul>
+<li>创建view（View子类）</li>
+<li><code>处理view的布局</code></li>
+<li>绘制view</li>
+<li><code>与用户进行交互</code></li>
+</ul>
+<hr>
+<h2 id="android-view视图层次"><a href="#android-view视图层次" class="headerlink" title="android view视图层次"></a>android view视图层次</h2><p><img src="https://img-blog.csdn.net/20170823211440918?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvQW5kckV4cGVydA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="视图层次"></p>
+<h2 id="view的事件分发机制-与用户进行交互-："><a href="#view的事件分发机制-与用户进行交互-：" class="headerlink" title="view的事件分发机制(与用户进行交互)："></a>view的事件分发机制(与用户进行交互)：</h2><h3 id="MotionEvent"><a href="#MotionEvent" class="headerlink" title="MotionEvent"></a>MotionEvent</h3><p>事件分发主要传递的其实就是一系列MotionEvent，看一下他的主要方法：  </p>
+<ul>
+<li><code>getX()/getY()</code>获取该触摸点相对于当前view的左上角坐标</li>
+<li><code>getRawX()/getRawY()</code>获取触摸点相对于整个手机屏幕的坐标</li>
+<li><code>getAction()</code>获取事件类型</li>
+</ul>
+<p>事件分发就是将一个MotionEvent传递给一个具体的view。<br>事件传递的主要过程：<br>activity—&gt;<br>window—-&gt;<br>viewgroup(view)</p>
+<h3 id="事件分发三大方法："><a href="#事件分发三大方法：" class="headerlink" title="事件分发三大方法："></a>事件分发三大方法：</h3><p><code>boolean  dispatchTouchEvent(MotionEvent ev)</code>  </p>
+<ul>
+<li><p>事件分发的主要方法</p>
+</li>
+<li><p>如果事件能够传递给当前view，那么他的dispatchTouchEvent方法一定会被调用</p>
+</li>
+<li><p>伪代码描述：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public boolean onDispatchTouchEvent(MotionEvent ev)&#123;</span><br><span class="line">        boolean result=false;</span><br><span class="line">        if(onInterceptTouchEvent(ev))&#123;</span><br><span class="line">                //也就是调用了view的方法，viewgroup继承自view</span><br><span class="line">                result=onTouchEvent;</span><br><span class="line">        &#125;else&#123;</span><br><span class="line">                result=child.dispatchTouchEvent(ev)</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="优先级顺序"><a href="#优先级顺序" class="headerlink" title="优先级顺序"></a>优先级顺序</h3></li>
+</ul>
+<p>(view)的dispatchTouchEvent—&gt;<br>onTouch()—-&gt;<br>onTouchEvent()—–&gt;<br>onclick()  </p>
+<p><code>boolean  onInterceptTouchEvent(MotionEvent ev)</code><br>表示是否拦截此次事件  ，默认返回false<br><code>boolean  onTouchEvent(MotionEvent ev)</code><br>处理触摸事件的主要方法，（如果设置有onTouchListener设置了onTouch，则会调用onTouch，且返回true则不会调用onTouchEvent)，里面调用了onClick,onLongClick,(且只要LONG_CLICKABLE或者CLICKABLE这两个任意一个为true，就会返回true)，即便是不可用状态</p>
+<h4 id="dispatchTouchEvent主要流程（一次viewGroup到view的传递过程，其他的也是这样，递归着来）："><a href="#dispatchTouchEvent主要流程（一次viewGroup到view的传递过程，其他的也是这样，递归着来）：" class="headerlink" title="dispatchTouchEvent主要流程（一次viewGroup到view的传递过程，其他的也是这样，递归着来）："></a><code>dispatchTouchEvent主要流程</code>（一次viewGroup到view的传递过程，其他的也是这样，递归着来）：</h4><ol>
+<li>(viewGroup)判断是否拦截,如果拦截 （onterceptTouchEvent返回true），则接下来的事件序列都有其来处理（调用他的onTouchEvent），否则进行下一步</li>
+<li>遍历viewGroup里所有的子view（viewGroup），找到符合的view（在点击坐标是否在view内，且view是否在播放动画），如果找到，则调用他的dispatch方法，即完成一次传递（通过<code>dispatchTransformedTouchEvent()</code>）</li>
+<li>如果遍历所有子元素后事件都没有被处理，则包含两种情况:  <ul>
+<li>viewgroup没有合适子元素</li>
+<li>子元素处理了点击事件，但dispatchTouchEvent返回了false（一般是onTouchEvent返回了false）  </li>
+</ul>
+</li>
+</ol>
+<p>则继续交由该viewgroup处理</p>
+<h4 id="总结一下："><a href="#总结一下：" class="headerlink" title="总结一下："></a>总结一下：</h4><ol>
+<li>一但viewGroup拦截了这个事件，则这一整个序列都将交由他来处理，并且不会再次调用onInterceptTouchEvent（）方法。所以如果viewGroup想要处理事件，就一是拦截了事件，二是没有找到合适的子view，从而转去调用它自己的onTouchEvent。</li>
+<li>view一旦开始处理事件，如果他不消耗ACTION_DOWN,则其他事件也不会交由他处理，<br>view如果不消耗除了ACTION_DOWN以外的其他事件，则这事件会消失，最后将传到activity处理</li>
+<li>注意onclick的调用时机是view接收到了ACTION_DOWN和ACTION_UP这两个事件。</li>
+<li>onInterceptTouchEvent的调用：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// ViewGroup</span><br><span class="line"></span><br><span class="line">            if (actionMasked == MotionEvent.ACTION_DOWN</span><br><span class="line">                    || mFirstTouchTarget != null) &#123;</span><br><span class="line">                final boolean disallowIntercept = (mGroupFlags &amp; FLAG_DISALLOW_INTERCEPT) != 0;</span><br><span class="line">                if (!disallowIntercept) &#123;</span><br><span class="line">                    intercepted = onInterceptTouchEvent(ev);</span><br><span class="line">                    ev.setAction(action); // restore action in case it was changed</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    intercepted = false;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                // There are no touch targets and this action is not an initial down</span><br><span class="line">                // so this view group continues to intercept touches.</span><br><span class="line">                intercepted = true;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+也就是说如果被拦截，那么mfirstTouchTarget就为null，则跳出去，就不会再次执行onInterceptTouchEvent,所以一定注意这个方法只会执行一次。</li>
+</ol>
+<ol start="5">
+<li>总的来说，view的事件传递就是利用了责任链设计模式，从activity开始忘viewGroup，再往下级view传递，（<code>从DOWN开始</code>，down事件确定了该view是否要消费他）如果能执行，能消费，则该view返回true，表示交由他来处理，并且停止向下传递；而如果返回了false则交由上级view来处理，而上级viewgroup可以拦截下事件，从而将接下来的事件交由他来处理。</li>
+</ol>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
     <article id="post-Android线程通信"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -165,7 +262,7 @@ var themeMenus = {};
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2019/11/08/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/">Android线程通信</a>
+      <a class="article-title" href="/2019/10/21/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/">Android线程通信机制</a>
     </h1>
   
 
@@ -173,24 +270,15 @@ var themeMenus = {};
     
     <div class="article-meta">
       
-	Posted on <a href="/2019/11/08/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/" class="article-date">
-	  <time datetime="2019-11-08T09:37:43.613Z" itemprop="datePublished">November 8, 2019</time>
+	Posted on <a href="/2019/10/21/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/" class="article-date">
+	  <time datetime="2019-10-20T16:00:00.000Z" itemprop="datePublished">October 21, 2019</time>
 	</a>
 
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <hr>
-<p>title: Android线程通信机制<br>date: 2019-10-21<br>tags:</p>
-<ul>
-<li>操作系统</li>
-<li>线程<br>categories:</li>
-<li>[Android]</li>
-<li>[操作系统]</li>
-</ul>
-<hr>
-<h2 id="Android中的线程通信"><a href="#Android中的线程通信" class="headerlink" title="Android中的线程通信"></a>Android中的线程通信</h2><h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛出异常），文件读写等耗时操作都要新建线程，然后在将结果返回到主线程上。或者想在另一个线程上运行一段代码，这些都是线程间的通信。</p>
+        <h2 id="Android中的线程通信"><a href="#Android中的线程通信" class="headerlink" title="Android中的线程通信"></a>Android中的线程通信</h2><h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛出异常），文件读写等耗时操作都要新建线程，然后在将结果返回到主线程上。或者想在另一个线程上运行一段代码，这些都是线程间的通信。</p>
 <p>但不管你使用何种方式实现：直接使用handle传递信息，使用asynctask，甚至使用rxjava的subscribeon() ,其底层都是通过Android 的handle机制来实现的所以接下来就来探索这一实现过程。</p>
 <h3 id="线程共享变量："><a href="#线程共享变量：" class="headerlink" title="线程共享变量："></a>线程共享变量：</h3><p>刚学过操作系统的我们知道：<code>在同一进程中线程和线程之间资源是共享的，也就是对于任何变量在任何线程都是可以访问和修改的</code>（注意这是在操作系统层面，因为所以线程共用一个进程的资源，但在语言层面，会有局部变量，全局变量的约束，而原则上只要你能找到变量的地址，你就能在任何线程上使用）。<br><img src="https://pic1.zhimg.com/v2-53a14d2b5cccfed961d671199e62dda0_b.gif" alt="操作系统进程模型"></p>
 <p>这样一来就好实现了，只需访问所需传递信息的线程的handle就行了，调用handle.send。Android将线程间传递的信息封装成了一个Message类，数据可以传递给Message的object（或复杂一点的bundle字段），调用post（）传递代码段其实被封装成了Message的Runnable callback（把代码块当成对象传递）。</p>
@@ -210,7 +298,13 @@ var themeMenus = {};
     </div>
     <footer class="entry-meta entry-footer">
       
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>, <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+
       
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B/" rel="tag">线程</a></li></ul>
+
       
             
       
@@ -539,6 +633,66 @@ var themeMenus = {};
     
 
   
+    <article id="post-android gradle plugin中各种版本"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2019/03/18/android%20gradle%20plugin%E4%B8%AD%E5%90%84%E7%A7%8D%E7%89%88%E6%9C%AC/">Android构建工具各种版本</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/03/18/android%20gradle%20plugin%E4%B8%AD%E5%90%84%E7%A7%8D%E7%89%88%E6%9C%AC/" class="article-date">
+	  <time datetime="2019-03-18T01:24:25.000Z" itemprop="datePublished">March 18, 2019</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Android构建工具各种版本"><a href="#Android构建工具各种版本" class="headerlink" title="Android构建工具各种版本"></a>Android构建工具各种版本</h1><h2 id="minSdkVersion-lt-targetSdkVersion-lt-compileSdkVersion"><a href="#minSdkVersion-lt-targetSdkVersion-lt-compileSdkVersion" class="headerlink" title="minSdkVersion &lt;= targetSdkVersion &lt;= compileSdkVersion"></a>minSdkVersion &lt;= targetSdkVersion &lt;= compileSdkVersion</h2><h3 id="minSdkversion"><a href="#minSdkversion" class="headerlink" title="minSdkversion:"></a>minSdkversion:</h3><ul>
+<li>作用：告诉应用市场安装该应用的最低版本</li>
+</ul>
+<h3 id="compilesdkversion："><a href="#compilesdkversion：" class="headerlink" title="compilesdkversion："></a>compilesdkversion：</h3><ul>
+<li>作用：告诉 Gradle 用哪个 Android SDK 版本编译你的应用。使用任何新添加的 API 就需要使用对应 Level 的 Android SDK。<h3 id="targetsdkversion"><a href="#targetsdkversion" class="headerlink" title="targetsdkversion"></a>targetsdkversion</h3></li>
+<li>作用：主要是为了Android系统的向前兼容，targetSdkVersion 所暗示的许多行为变化都记录在 VERSION_CODES 文档中，所以当出现更新了新系统时，如果新系统版本大于了该应用的targetsdkversion版本，就不会在该应用使用最新的变化，<blockquote>
+<p>targetSdkVersion 是 Android 提供向前兼容的主要依据，在应用的 targetSdkVersion 没有更新之前系统不会应用最新的行为变化</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="buildtoolversion"><a href="#buildtoolversion" class="headerlink" title="buildtoolversion"></a>buildtoolversion</h3><p>-作用：表示构建工具的版本，其中包括了打包工具aapt、dx等等，所以应该大于compile版本</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>, <a class="article-category-link" href="/categories/Gradle/">Gradle</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Gradle/" rel="tag">Gradle</a></li></ul>
+
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
     <article id="post-正则表达式"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -605,66 +759,6 @@ var themeMenus = {};
       
   <span class="ico-tags"></span>
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
-
-      
-            
-      
-    </footer>
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-    
-
-  
-    <article id="post-android gradle plugin中各种版本"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2019/03/18/android%20gradle%20plugin%E4%B8%AD%E5%90%84%E7%A7%8D%E7%89%88%E6%9C%AC/">Android构建工具各种版本</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	Posted on <a href="/2019/03/18/android%20gradle%20plugin%E4%B8%AD%E5%90%84%E7%A7%8D%E7%89%88%E6%9C%AC/" class="article-date">
-	  <time datetime="2019-03-18T01:24:25.000Z" itemprop="datePublished">March 18, 2019</time>
-	</a>
-
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Android构建工具各种版本"><a href="#Android构建工具各种版本" class="headerlink" title="Android构建工具各种版本"></a>Android构建工具各种版本</h1><h2 id="minSdkVersion-lt-targetSdkVersion-lt-compileSdkVersion"><a href="#minSdkVersion-lt-targetSdkVersion-lt-compileSdkVersion" class="headerlink" title="minSdkVersion &lt;= targetSdkVersion &lt;= compileSdkVersion"></a>minSdkVersion &lt;= targetSdkVersion &lt;= compileSdkVersion</h2><h3 id="minSdkversion"><a href="#minSdkversion" class="headerlink" title="minSdkversion:"></a>minSdkversion:</h3><ul>
-<li>作用：告诉应用市场安装该应用的最低版本</li>
-</ul>
-<h3 id="compilesdkversion："><a href="#compilesdkversion：" class="headerlink" title="compilesdkversion："></a>compilesdkversion：</h3><ul>
-<li>作用：告诉 Gradle 用哪个 Android SDK 版本编译你的应用。使用任何新添加的 API 就需要使用对应 Level 的 Android SDK。<h3 id="targetsdkversion"><a href="#targetsdkversion" class="headerlink" title="targetsdkversion"></a>targetsdkversion</h3></li>
-<li>作用：主要是为了Android系统的向前兼容，targetSdkVersion 所暗示的许多行为变化都记录在 VERSION_CODES 文档中，所以当出现更新了新系统时，如果新系统版本大于了该应用的targetsdkversion版本，就不会在该应用使用最新的变化，<blockquote>
-<p>targetSdkVersion 是 Android 提供向前兼容的主要依据，在应用的 targetSdkVersion 没有更新之前系统不会应用最新的行为变化</p>
-</blockquote>
-</li>
-</ul>
-<h3 id="buildtoolversion"><a href="#buildtoolversion" class="headerlink" title="buildtoolversion"></a>buildtoolversion</h3><p>-作用：表示构建工具的版本，其中包括了打包工具aapt、dx等等，所以应该大于compile版本</p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/Android/">Android</a>, <a class="article-category-link" href="/categories/Gradle/">Gradle</a>
-
-      
-  <span class="ico-tags"></span>
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Gradle/" rel="tag">Gradle</a></li></ul>
 
       
             
@@ -870,73 +964,6 @@ finally,虽然不同设备上像素块大小会不一样，但是同一台硬件
     
 
   
-    <article id="post-gradle"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2018/11/19/gradle/">gradle</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	Posted on <a href="/2018/11/19/gradle/" class="article-date">
-	  <time datetime="2018-11-19T09:14:00.000Z" itemprop="datePublished">November 19, 2018</time>
-	</a>
-
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-
-          
-            <div class="entry-summary" style="margin-left:0;">
-            常用的Gradle命令
-
-查看版本号: gradle -v
-编译执行某个task: gradle Task名
-静默编译执行某个task: gradle -q Task名（q表示quiet模式，表示编译执行Gradle脚本的过程中，只输出必要的信息. 除了quiet模式外，Gradle中还有其他三种模式）
-编译执行某个Project中的某个task：gradle -b Project名 Task名（Gradle默认只执行- - - build.gradle文件中，自定义其他文件xxx.gradle编译运行显式指定Project名称，这里的build.gradle其实表示的就是build Project）
-显示所有的Project：gradle projects
-显示所有的task：gra...
-          
-
-        
-          <p class="article-more-link">
-            <a href="/2018/11/19/gradle/#more">Continue Reading →</a>
-          </p>
-        </div>
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/Gradle/">Gradle</a>, <a class="article-category-link" href="/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/">开发工具</a>
-
-      
-  <span class="ico-tags"></span>
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Gradle/" rel="tag">Gradle</a></li></ul>
-
-      
-            
-      
-    </footer>
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-    
-
-  
 
 
   <nav id="page-nav">
@@ -1037,8 +1064,20 @@ finally,虽然不同设备上像素块大小会不一样，但是同一台硬件
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2019/11/08/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/">Android线程通信</a></h6>
-              <span>November 8, 2019</span>
+              <h6 style="margin: 0;"><a href="/2019/11/12/android%20View%E7%9A%84%E4%BA%8B%E4%BB%B6%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6/">Android view的事件分发机制</a></h6>
+              <span>November 12, 2019</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h6 style="margin: 0;"><a href="/2019/10/21/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/">Android线程通信机制</a></h6>
+              <span>October 21, 2019</span>
             </div>
 
           </li>
@@ -1091,18 +1130,6 @@ finally,虽然不同设备上像素块大小会不一样，但是同一台硬件
 
           </li>
         
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2019/03/18/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">正则表达式（Java）</a></h6>
-              <span>March 18, 2019</span>
-            </div>
-
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -1112,7 +1139,7 @@ finally,虽然不同设备上像素块大小会不一样，但是同一台硬件
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Android/">Android</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Gradle/">Gradle</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JetPack/">JetPack</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/c/">c++</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BB%8B%E7%BB%8D/">介绍</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/">开发工具</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/">网络请求</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Android/">Android</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Gradle/">Gradle</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JetPack/">JetPack</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/c/">c++</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BB%8B%E7%BB%8D/">介绍</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/">开发工具</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/">网络请求</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1122,7 +1149,7 @@ finally,虽然不同设备上像素块大小会不一样，但是同一台硬件
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/" rel="tag">Git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradle/" rel="tag">Gradle</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JetPack/" rel="tag">JetPack</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fragment/" rel="tag">fragment</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/j%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag">j机器学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/" rel="tag">leetcode</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E6%B2%BB%E6%B3%95/" rel="tag">分治法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" rel="tag">图片加载</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" rel="tag">网络请求</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/" rel="tag">Git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradle/" rel="tag">Gradle</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JetPack/" rel="tag">JetPack</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fragment/" rel="tag">fragment</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/j%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag">j机器学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/" rel="tag">leetcode</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E6%B2%BB%E6%B3%95/" rel="tag">分治法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" rel="tag">图片加载</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B/" rel="tag">线程</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" rel="tag">网络请求</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1132,7 +1159,7 @@ finally,虽然不同设备上像素块大小会不一样，但是同一台硬件
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/Gradle/" style="font-size: 13.33px;">Gradle</a> <a href="/tags/Java/" style="font-size: 16.67px;">Java</a> <a href="/tags/JetPack/" style="font-size: 10px;">JetPack</a> <a href="/tags/fragment/" style="font-size: 10px;">fragment</a> <a href="/tags/j%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">j机器学习</a> <a href="/tags/leetcode/" style="font-size: 10px;">leetcode</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/%E5%88%86%E6%B2%BB%E6%B3%95/" style="font-size: 10px;">分治法</a> <a href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" style="font-size: 13.33px;">图片加载</a> <a href="/tags/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" style="font-size: 10px;">网络请求</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">设计模式</a>
+      <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/Gradle/" style="font-size: 13.33px;">Gradle</a> <a href="/tags/Java/" style="font-size: 16.67px;">Java</a> <a href="/tags/JetPack/" style="font-size: 10px;">JetPack</a> <a href="/tags/fragment/" style="font-size: 10px;">fragment</a> <a href="/tags/j%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">j机器学习</a> <a href="/tags/leetcode/" style="font-size: 10px;">leetcode</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/%E5%88%86%E6%B2%BB%E6%B3%95/" style="font-size: 10px;">分治法</a> <a href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" style="font-size: 13.33px;">图片加载</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">操作系统</a> <a href="/tags/%E7%BA%BF%E7%A8%8B/" style="font-size: 10px;">线程</a> <a href="/tags/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" style="font-size: 10px;">网络请求</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">设计模式</a>
     </div>
   </div>
 
@@ -1142,7 +1169,7 @@ finally,虽然不同设备上像素块大小会不一样，但是同一台硬件
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 

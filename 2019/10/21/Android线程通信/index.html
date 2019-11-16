@@ -13,22 +13,24 @@
   <!-- PACE Progress Bar START -->
 
   
-  <title>android线程通信 | WPY&#39;s Android Tour</title>
+  <title>android线程通信机制 | WPY&#39;s Android Tour</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
+  <meta name="keywords" content="操作系统线程" />
   
   
   
-  <meta name="description" content="title: Android线程通信机制date: 2019-10-21tags:  操作系统 线程categories: [Android] [操作系统]   Android中的线程通信前言：Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛出异常），文件读写等耗">
-<meta name="keywords" content="android,java,kotlin,源码学习">
+  
+  <meta name="description" content="Android中的线程通信前言：Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛出异常），文件读写等耗时操作都要新建线程，然后在将结果返回到主线程上。或者想在另一个线程上运行一段代码，这些都是线程间的通信。 但不管你使用何种方式实现：直接使用handle传递信息，使">
+<meta name="keywords" content="操作系统,线程">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android线程通信">
-<meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;11&#x2F;08&#x2F;Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1&#x2F;index.html">
+<meta property="og:title" content="Android线程通信机制">
+<meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;10&#x2F;21&#x2F;Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1&#x2F;index.html">
 <meta property="og:site_name" content="WPY&#39;s Android Tour">
-<meta property="og:description" content="title: Android线程通信机制date: 2019-10-21tags:  操作系统 线程categories: [Android] [操作系统]   Android中的线程通信前言：Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛出异常），文件读写等耗">
+<meta property="og:description" content="Android中的线程通信前言：Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛出异常），文件读写等耗时操作都要新建线程，然后在将结果返回到主线程上。或者想在另一个线程上运行一段代码，这些都是线程间的通信。 但不管你使用何种方式实现：直接使用handle传递信息，使">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;pic1.zhimg.com&#x2F;v2-53a14d2b5cccfed961d671199e62dda0_b.gif">
-<meta property="og:updated_time" content="2019-11-08T09:51:10.606Z">
+<meta property="og:updated_time" content="2019-11-16T10:27:20.566Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;pic1.zhimg.com&#x2F;v2-53a14d2b5cccfed961d671199e62dda0_b.gif">
   
@@ -166,7 +168,7 @@ var themeMenus = {};
         
   
     <h1 class="thumb" class="article-title" itemprop="name">
-      Android线程通信
+      Android线程通信机制
     </h1>
   
 
@@ -174,8 +176,8 @@ var themeMenus = {};
     
     <div class="article-meta">
       
-	Posted on <a href="/2019/11/08/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/" class="article-date">
-	  <time datetime="2019-11-08T09:37:43.613Z" itemprop="datePublished">November 8, 2019</time>
+	Posted on <a href="/2019/10/21/Android%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1/" class="article-date">
+	  <time datetime="2019-10-20T16:00:00.000Z" itemprop="datePublished">October 21, 2019</time>
 	</a>
 
       
@@ -186,16 +188,7 @@ var themeMenus = {};
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <hr>
-<p>title: Android线程通信机制<br>date: 2019-10-21<br>tags:</p>
-<ul>
-<li>操作系统</li>
-<li>线程<br>categories:</li>
-<li>[Android]</li>
-<li>[操作系统]</li>
-</ul>
-<hr>
-<h2 id="Android中的线程通信"><a href="#Android中的线程通信" class="headerlink" title="Android中的线程通信"></a>Android中的线程通信</h2><h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛出异常），文件读写等耗时操作都要新建线程，然后在将结果返回到主线程上。或者想在另一个线程上运行一段代码，这些都是线程间的通信。</p>
+        <h2 id="Android中的线程通信"><a href="#Android中的线程通信" class="headerlink" title="Android中的线程通信"></a>Android中的线程通信</h2><h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>Android开发中我们经常遇到需要切换线程的场景，当进行网络请求，数据库查询（在google新出的jetpack room数据库框架中，强制数据库操作都在新线程上，如果在主线程会抛出异常），文件读写等耗时操作都要新建线程，然后在将结果返回到主线程上。或者想在另一个线程上运行一段代码，这些都是线程间的通信。</p>
 <p>但不管你使用何种方式实现：直接使用handle传递信息，使用asynctask，甚至使用rxjava的subscribeon() ,其底层都是通过Android 的handle机制来实现的所以接下来就来探索这一实现过程。</p>
 <h3 id="线程共享变量："><a href="#线程共享变量：" class="headerlink" title="线程共享变量："></a>线程共享变量：</h3><p>刚学过操作系统的我们知道：<code>在同一进程中线程和线程之间资源是共享的，也就是对于任何变量在任何线程都是可以访问和修改的</code>（注意这是在操作系统层面，因为所以线程共用一个进程的资源，但在语言层面，会有局部变量，全局变量的约束，而原则上只要你能找到变量的地址，你就能在任何线程上使用）。<br><img src="https://pic1.zhimg.com/v2-53a14d2b5cccfed961d671199e62dda0_b.gif" alt="操作系统进程模型"></p>
 <p>这样一来就好实现了，只需访问所需传递信息的线程的handle就行了，调用handle.send。Android将线程间传递的信息封装成了一个Message类，数据可以传递给Message的object（或复杂一点的bundle字段），调用post（）传递代码段其实被封装成了Message的Runnable callback（把代码块当成对象传递）。</p>
@@ -215,7 +208,13 @@ var themeMenus = {};
     </div>
     <footer class="entry-meta entry-footer">
       
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>, <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+
       
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B/" rel="tag">线程</a></li></ul>
+
       
             
       
@@ -248,6 +247,15 @@ var themeMenus = {};
   
     
 <nav id="article-nav">
+  
+    <a href="/2019/11/12/android%20View%E7%9A%84%E4%BA%8B%E4%BB%B6%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Android view的事件分发机制
+        
+      </div>
+    </a>
   
   
     <a href="/2019/08/10/Android%E8%B6%85%E9%95%BF%E5%9B%BE%E5%8A%A0%E8%BD%BD%E4%B8%8Esubsampling%20scale%20image%20view%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90/" id="article-nav-older" class="article-nav-link-wrap">
