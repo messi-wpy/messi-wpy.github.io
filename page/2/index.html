@@ -157,6 +157,77 @@ var themeMenus = {};
         
           <section id="main">
   
+    <article id="post-c++坑之构造函数"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2018/12/16/c++%E5%9D%91%E4%B9%8B%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/">c++坑之拷贝函数总结</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2018/12/16/c++%E5%9D%91%E4%B9%8B%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/" class="article-date">
+	  <time datetime="2018-12-16T15:35:46.000Z" itemprop="datePublished">December 16, 2018</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="C-构造函数"><a href="#C-构造函数" class="headerlink" title="C++构造函数"></a>C++构造函数</h3><hr>
+<ol>
+<li><p>c++类的中有两个特殊的构造函数(<code>都是构造函数</code>)<br>(1)无参构造函数<br> (2)拷贝构造函数<code>classname (const classname &amp;obj)</code>（默认的拷贝构造函数—常引用型，拷贝构造函数是一种特殊的构造函数，函数的名称必须和类名称一致，它必须的一个参数是本类型的一个引用变量）</p>
+</li>
+<li><p>它们的特殊之处在于：<br>(1)当类中没有定义任何构造函数时，编译器会默认提供一个无参构造函数且其函数体为空；<br>(2)当类中没有定义拷贝构造函数时，编译器会默认提供一个拷贝构造函数，进行成员变量之间的拷贝。(这个拷贝操作是浅拷贝)  </p>
+</li>
+</ol>
+<p><strong>注意：也就是说,构造函数包含拷贝函数，如果定义了一个拷贝函数，就没有默认的构造函数了</strong></p>
+<h2 id="拷贝函数的使用时机"><a href="#拷贝函数的使用时机" class="headerlink" title="拷贝函数的使用时机"></a>拷贝函数的使用时机</h2><h4 id="当用一个已初始化过了的自定义类类型对象去初始化另一个新构造的对象的时候，拷贝构造函数就会被自动调用。也就是说，当类的对象需要拷贝时，拷贝构造函数将会被调用。以下情况都会调用拷贝构造函数："><a href="#当用一个已初始化过了的自定义类类型对象去初始化另一个新构造的对象的时候，拷贝构造函数就会被自动调用。也就是说，当类的对象需要拷贝时，拷贝构造函数将会被调用。以下情况都会调用拷贝构造函数：" class="headerlink" title="当用一个已初始化过了的自定义类类型对象去初始化另一个新构造的对象的时候，拷贝构造函数就会被自动调用。也就是说，当类的对象需要拷贝时，拷贝构造函数将会被调用。以下情况都会调用拷贝构造函数："></a>当用一个已初始化过了的自定义类类型对象去初始化另一个新构造的对象的时候，拷贝构造函数就会被自动调用。也就是说，当类的对象需要拷贝时，拷贝构造函数将会被调用。以下情况都会调用拷贝构造函数：</h4><ul>
+<li>一个对象以值传递的方式传入函数体   </li>
+<li>一个对象以值传递的方式从函数返回   </li>
+<li>一个对象需要通过另外一个对象进行初始化  </li>
+<li>c++STL容器也是调用拷贝构造函数</li>
+</ul>
+<h2 id="深拷贝和浅拷贝"><a href="#深拷贝和浅拷贝" class="headerlink" title="深拷贝和浅拷贝"></a>深拷贝和浅拷贝</h2><p>1.深拷贝是为指针分配了地址(比如为其new了一个新的)而浅拷贝只是赋值－－－pr1=pr2,此时浅拷贝两个的对象的某个属性的指针指向同一块地址。(图：浅拷贝，深拷贝)<br><img src="http://hi.csdn.net/attachment/201102/23/0_1298440940377T.gif" alt="浅拷贝"><br><img src="http://hi.csdn.net/attachment/201102/23/0_12984409785Oby.gif" alt="深拷贝"></p>
+<blockquote>
+<p>深拷贝和浅拷贝可以简单理解为：如果一个类拥有资源，当这个类的对象发生复制过程的时候，资源重新分配，这个过程就是深拷贝，反之，没有重新分配资源，就是浅拷贝</p>
+</blockquote>
+<h2 id="等号运算符与拷贝函数"><a href="#等号运算符与拷贝函数" class="headerlink" title="等号运算符与拷贝函数"></a>等号运算符与拷贝函数</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">如果对象在申明的同时马上进行的初始化操作，则称之为拷贝运算。例如：</span><br><span class="line">        class1 A(&quot;af&quot;); class1 B=A;</span><br><span class="line">    此时其实际调用的是B(A)这样的浅拷贝操作。</span><br><span class="line">如果对象在申明之后，在进行的赋值运算，我们称之为赋值运算。例如：</span><br><span class="line">        class1 A(&quot;af&quot;); class1 B;</span><br><span class="line">        B=A;</span><br><span class="line">    此时实际调用的类的缺省赋值函数B.operator=(A);</span><br></pre></td></tr></table></figure>
+<p><strong>等号运算符类似浅拷贝，所以，class有指针，不仅一定要重写拷贝构造函数（写深拷贝），还要重载<code>=</code>运算符８</strong></p>
+<p>##NOTE</p>
+<ol>
+<li>尽量避免值传递，最好用指针和引用.如果对象有内部指针指向动态分配的堆内存，丝毫不要考虑把对象按值传递给函数，要按引用传递。并记住：若函数不能改变参数对象的状态和目标对象的状态，则要使用const修饰符 </li>
+<li>对于类的成员需要动态申请堆空间的类的对象，大家都知道，我们都最好要overload其赋值函数和拷贝函数。拷贝构造函数是没有任何返回类型的，这点毋庸置疑。 而赋值函数可以返回多种类型，例如以上讲的void,类本身class1，以及类的引用 class &amp; (可以实现连等)</li>
+</ol>
+<h3 id="参考两篇很好的博客，博客２"><a href="#参考两篇很好的博客，博客２" class="headerlink" title="参考两篇很好的博客，博客２"></a>参考两篇很好的<a href="https://blog.csdn.net/lwbeyond/article/details/6202256" target="_blank" rel="noopener">博客</a>，<a href="https://www.cnblogs.com/Winston/archive/2008/06/03/1212700.html" target="_blank" rel="noopener">博客２</a></h3>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/c/">c++</a>
+
+      
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
     <article id="post-gradle"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -879,6 +950,18 @@ git push [远程仓库名]  [远程分支]3. git 别名
               <div class="widget-entry-summary" style="margin: 0;">
             
 
+              <h6 style="margin: 0;"><a href="/2019/11/22/Android%E8%87%AA%E5%AE%9A%E4%B9%89view%E7%BB%83%E4%B9%A0/">Android自定义view练习</a></h6>
+              <span>November 22, 2019</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
               <h6 style="margin: 0;"><a href="/2019/11/12/android%20View%E7%9A%84%E4%BA%8B%E4%BB%B6%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6/">Android view的事件分发机制</a></h6>
               <span>November 12, 2019</span>
             </div>
@@ -933,18 +1016,6 @@ git push [远程仓库名]  [远程分支]3. git 别名
 
           </li>
         
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2019/04/08/Android%20JetPack%20%E6%9E%B6%E6%9E%84/">Android JetPack 架构</a></h6>
-              <span>April 8, 2019</span>
-            </div>
-
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -984,7 +1055,7 @@ git push [远程仓库名]  [远程分支]3. git 别名
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
