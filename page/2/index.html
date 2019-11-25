@@ -157,6 +157,126 @@ var themeMenus = {};
         
           <section id="main">
   
+    <article id="post-android图片加载相关"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2019/03/15/android%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E7%9B%B8%E5%85%B3/">android 中图片单位及图片加载优化相关知识</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/03/15/android%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD%E7%9B%B8%E5%85%B3/" class="article-date">
+	  <time datetime="2019-03-15T01:24:25.000Z" itemprop="datePublished">March 15, 2019</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="android-中图片单位及图片加载优化相关知识"><a href="#android-中图片单位及图片加载优化相关知识" class="headerlink" title="android 中图片单位及图片加载优化相关知识"></a>android 中图片单位及图片加载优化相关知识</h1><hr>
+<h2 id="1-图片相关知识，像素，分辨率"><a href="#1-图片相关知识，像素，分辨率" class="headerlink" title="1. 图片相关知识，像素，分辨率"></a>1. 图片相关知识，像素，分辨率</h2><pre><code>px就是图片中最小的点，最小单位，单位色块,每个图都是由这些小像素点组成的，如基本的图片格式bitmap,注意像素的大小没有固定的长度，不同设备上一个单位的像素色块的大小是不一样的
+分辨率=画面水平方向的像素值 * 画面垂直方向的像素值。
+分辨率可以分为两方面：屏幕分辨率和图像分辨率。
+屏幕分辨率如1024*768,就表示设备水平方向上有1024个像素点，垂直方向上有768个
+图片分辨率也如上所说，比如如果某图片是500*200,就表示如果这个图片一比一显示的话，就是水平方向有500个像素点，而垂直方向有200个.
+而像素点的大小不一样，所以同一张分辨率的图片在不同尺寸的显示器上很可能显示不同大小，或者即便尺寸相同，分辨率高的那个图片显示会小
+像素越高，单个面积越小，显示的画质就越细致（当然要有相应分辨率的图片）
+
+补充：图片的放大缩小：
+放大是通过算法认为插入很多像素，所以如果放的很大，有效像素就很少，就会变得模糊
+缩小是通过一定的算法删去一部分像素，所以会在细节上对视一小部分像素
+
+所以如果图像分辨率小于显示器分辨率时，第一种是显示实际大小，但不是全屏，第二种是放大来全屏显示
+如果大于显示器分辨率，第一种是局部显示（全屏），可拖放，第二种是通过缩小全屏显示
+
+finally,虽然不同设备上像素块大小会不一样，但是同一台硬件设备上的屏幕分辨率、像素块大小是不会变的。PC电脑上之所以可以调整屏幕分辨率，其实也是通过算法转换了</code></pre><h2 id="1-android-图片，控件大小相关单位"><a href="#1-android-图片，控件大小相关单位" class="headerlink" title="1.android 图片，控件大小相关单位"></a>1.android 图片，控件大小相关单位</h2><ul>
+<li><code>px</code>:<br>(Pixel像素)构成图像的基本单元，但是单个像素的大小不固定，所以在不同尺寸设备上会有拉伸缩放，不推荐</li>
+<li><code>dpi</code>:<br>是指屏幕上每英寸距离中有多少个像素点，dpi=dpi=√hight^2+width^2 / size  (android以160dpi为标准)</li>
+<li><strong>dp(dip)</strong> 设备独立像素 device independent pixel<br>一般都用这个作单位，顾名思义，独立，对于相同尺寸的手机，即使分辨率不同，同DP的组件占用屏幕比例相同，UI效果也相同。（注意，是相同的尺寸）  dp可以维护Android组件自身的比例平衡，不至于在不同屏幕上变形<br>转换公式：<code>px = dp * (dpi/160)</code></li>
+<li>sp<br> 主要用于字体，使得字体可以根据用户手机设置来修改字体大小</li>
+</ul>
+<h3 id="注-如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议"><a href="#注-如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议" class="headerlink" title="注:如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议"></a>注:如今的dpi不能根据物理计算，是厂家生产时写在系统配置中的固定数值，为了简化屏幕适配，一般机型的dpi的取值会参考上面的范围，但是总会有一些特殊的机型就是不采纳官方的建议</h3><p>可通过：dpi可以通过DisplayMetrics类的densityDpi属性获取当前手机的dpi数值，该类也可以获取到跟屏幕密度有关的其它属性。一般获取DisplayMetrics类有以下方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">方式1:</span><br><span class="line">//content:Activity,Content,Application. </span><br><span class="line">DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();</span><br><span class="line">方式2:</span><br><span class="line">//getSystemService可以通过 Activity,Content,Application等获取.</span><br><span class="line"> DisplayMetrics displayMetrics = new DisplayMetrics();</span><br><span class="line"> WindowManager windowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);</span><br><span class="line"> windowManager.getDefaultDisplay().getMetrics(displayMetrics);</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h2 id="屏幕适配"><a href="#屏幕适配" class="headerlink" title="屏幕适配"></a>屏幕适配</h2><p>主流推荐<a href="https://mp.weixin.qq.com/s?__biz=MzI1MzYzMjE0MQ==&mid=2247484502&idx=2&sn=a60ea223de4171dd2022bc2c71e09351&scene=21#wechat_redirect" target="_blank" rel="noopener">今日头条适配方案</a>但自己不是太懂。。。  </p>
+<ul>
+<li>使用<code>wrap_content、match_parent、weight</code></li>
+<li>使用相对布局</li>
+</ul>
+<h2 id="几个不同文件夹放的本地图片drawable"><a href="#几个不同文件夹放的本地图片drawable" class="headerlink" title="几个不同文件夹放的本地图片drawable"></a>几个不同文件夹放的本地图片drawable</h2><p> Bitmap.decodeResource() 源码，新图的高度 = 原图高度 * (设备的 dpi / 目录对应的 dpi )</p>
+<h2 id="bitmap"><a href="#bitmap" class="headerlink" title="bitmap"></a>bitmap</h2><p><strong>Bitmap</strong> 就是Android中的图片，一张位图，只有生成了bitmap,才占内存，可以通过<code>bitmap.getbytecount()</code>来获取该bitmap具体占用内存</p>
+<ul>
+<li><p>bitmap的创建：  </p>
+<ol>
+<li>通过已有的bitmap创建（可以对已有的bitmap进行各种操作放大，裁剪等）：<br><code>createBitmap(...)</code><br><code>createScaleBitmap(...)</code><br>…</li>
+<li>通过BitmapFactory，从各种数据源来解析，创建bitma对象：  <ul>
+<li>decodeByteArray(byte[] data, int offset, int length)：从指定的字节数组的offset位置开始，将长度为length的字节数据解析成Bitmap对象。</li>
+<li>decodeFile(String pathName)：从pathName指定的文件中解析、创建Bitmap对象。</li>
+<li>decodeFileDescriptor(FileDescriptor fd)：从FileDescriptor对应的文件中解析、创建Bitmap对象。</li>
+<li>decodeResource(Resources res, int id)：根据给定的资源ID从指定资源中解析、创建Bitmap对象。</li>
+<li>decodeStream(InputStream is)：从指定的输入流中解析、创建Bitmap对象。</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>BitmapFactory.Options  </p>
+<ol>
+<li>BitmapFactory.Options类是BitmapFactory对图片<strong>进行解码时</strong>使用的一个配置参数类，其中定义了一系列的public成员变量，每个成员变量代表一个配置参数。  </li>
+<li><code>inperferredConfig</code>参数,设置图片使用的颜色模式</li>
+<li><code>inJustDecodeBounds</code>，true—&gt;告诉BitmapFactory只是获得长宽，不用加载bitmap到内存中，返回null  </li>
+<li><code>inSmapleSize</code> 尺寸压缩，减少图片水平竖直像素点（分辨率）只能缩小，且为2的倍数，（&lt;1时自动变为1）</li>
+</ol>
+</li>
+<li><p>Matrix</p>
+<ol>
+<li>matrix类，即矩阵，可以对图片bitmap矩阵进行一些列线性变换，放大，旋转，位移等等 </li>
+</ol>
+</li>
+</ul>
+<h2 id="图片的三层缓存"><a href="#图片的三层缓存" class="headerlink" title="图片的三层缓存"></a>图片的三层缓存</h2><h3 id="加载图片时，应一次从内存—-gt-本地—-gt-网络去寻找图片资源，并以图片的url值为key"><a href="#加载图片时，应一次从内存—-gt-本地—-gt-网络去寻找图片资源，并以图片的url值为key" class="headerlink" title="加载图片时，应一次从内存—&gt;本地—&gt;网络去寻找图片资源，并以图片的url值为key"></a>加载图片时，应一次从内存—&gt;本地—&gt;网络去寻找图片资源，并以图片的url值为key</h3><ol>
+<li>从内存获取：使用的是LruCache这个类（Least Recently Used ）即最近最少使用算法，内部维护一个LinkedHashMap</li>
+<li>从文件获取：google推荐的DiskLruCache，硬盘缓存类</li>
+<li>网络</li>
+<li>在上传，缓存本地时最好压缩一下，insamplesize尺寸压缩和compress质量压缩，以减小文件大小</li>
+</ol>
+<h2 id="加载网络大图，多图优化"><a href="#加载网络大图，多图优化" class="headerlink" title="加载网络大图，多图优化"></a>加载网络大图，多图优化</h2><p>加载大图，长图时，可以用<code>BitmapRegionDecoder</code>进行图片的局部加载</p>
+<p>参考：<br><a href="https://developer.android.google.cn/guide/practices/screens_support" target="_blank" rel="noopener">google-androld</a><br><a href="https://blog.csdn.net/qq_31382907/article/details/81033596" target="_blank" rel="noopener">csdn1</a><br><a href="https://www.zhihu.com/question/21149600/answer/29971490" target="_blank" rel="noopener">zhihu</a></p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" rel="tag">图片加载</a></li></ul>
+
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
     <article id="post-c++坑之构造函数"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -794,67 +914,11 @@ git push [远程仓库名]  [远程分支]3. git 别名
     
 
   
-    <article id="post-hello-world"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2018/01/01/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	Posted on <a href="/2018/01/01/hello-world/" class="article-date">
-	  <time datetime="2017-12-31T16:00:00.000Z" itemprop="datePublished">January 1, 2018</time>
-	</a>
-
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-      
-      
-            
-      
-    </footer>
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-    
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/">Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    <a class="extend prev" rel="prev" href="/">Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next</a>
   </nav>
 
 </section>
@@ -950,6 +1014,18 @@ git push [远程仓库名]  [远程分支]3. git 别名
               <div class="widget-entry-summary" style="margin: 0;">
             
 
+              <h6 style="margin: 0;"><a href="/2019/11/25/Android%E8%87%AA%E5%AE%9A%E4%B9%89view-onMeasure/">Android自定义view-onMeasure</a></h6>
+              <span>November 25, 2019</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
               <h6 style="margin: 0;"><a href="/2019/11/22/Android%E8%87%AA%E5%AE%9A%E4%B9%89view%E7%BB%83%E4%B9%A0/">Android自定义view练习</a></h6>
               <span>November 22, 2019</span>
             </div>
@@ -1004,18 +1080,6 @@ git push [远程仓库名]  [远程分支]3. git 别名
 
           </li>
         
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2019/04/25/AndroidFragment%E5%AD%A6%E4%B9%A0/">Android FragmentManager使用</a></h6>
-              <span>April 25, 2019</span>
-            </div>
-
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -1025,7 +1089,7 @@ git push [远程仓库名]  [远程分支]3. git 别名
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Android/">Android</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Gradle/">Gradle</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JetPack/">JetPack</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/c/">c++</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BB%8B%E7%BB%8D/">介绍</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/">开发工具</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/">网络请求</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI/">AI</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Android/">Android</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Gradle/">Gradle</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JetPack/">JetPack</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/c/">c++</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BB%8B%E7%BB%8D/">介绍</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/">开发工具</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/">网络请求</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1035,7 +1099,7 @@ git push [远程仓库名]  [远程分支]3. git 别名
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/" rel="tag">Git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradle/" rel="tag">Gradle</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JetPack/" rel="tag">JetPack</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fragment/" rel="tag">fragment</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/j%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag">j机器学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/" rel="tag">leetcode</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E6%B2%BB%E6%B3%95/" rel="tag">分治法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" rel="tag">图片加载</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B/" rel="tag">线程</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" rel="tag">网络请求</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/" rel="tag">Git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradle/" rel="tag">Gradle</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JetPack/" rel="tag">JetPack</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/" rel="tag">android</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fragment/" rel="tag">fragment</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/j%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag">j机器学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/" rel="tag">leetcode</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E6%B2%BB%E6%B3%95/" rel="tag">分治法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" rel="tag">图片加载</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B/" rel="tag">线程</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" rel="tag">网络请求</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1045,7 +1109,7 @@ git push [远程仓库名]  [远程分支]3. git 别名
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/Gradle/" style="font-size: 13.33px;">Gradle</a> <a href="/tags/Java/" style="font-size: 16.67px;">Java</a> <a href="/tags/JetPack/" style="font-size: 10px;">JetPack</a> <a href="/tags/fragment/" style="font-size: 10px;">fragment</a> <a href="/tags/j%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">j机器学习</a> <a href="/tags/leetcode/" style="font-size: 10px;">leetcode</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/%E5%88%86%E6%B2%BB%E6%B3%95/" style="font-size: 10px;">分治法</a> <a href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" style="font-size: 13.33px;">图片加载</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">操作系统</a> <a href="/tags/%E7%BA%BF%E7%A8%8B/" style="font-size: 10px;">线程</a> <a href="/tags/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" style="font-size: 10px;">网络请求</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">设计模式</a>
+      <a href="/tags/Android/" style="font-size: 20px;">Android</a> <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/Gradle/" style="font-size: 13.33px;">Gradle</a> <a href="/tags/Java/" style="font-size: 16.67px;">Java</a> <a href="/tags/JetPack/" style="font-size: 10px;">JetPack</a> <a href="/tags/android/" style="font-size: 10px;">android</a> <a href="/tags/fragment/" style="font-size: 10px;">fragment</a> <a href="/tags/j%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">j机器学习</a> <a href="/tags/leetcode/" style="font-size: 10px;">leetcode</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/%E5%88%86%E6%B2%BB%E6%B3%95/" style="font-size: 10px;">分治法</a> <a href="/tags/%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" style="font-size: 13.33px;">图片加载</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">操作系统</a> <a href="/tags/%E7%BA%BF%E7%A8%8B/" style="font-size: 10px;">线程</a> <a href="/tags/%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/" style="font-size: 10px;">网络请求</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">设计模式</a>
     </div>
   </div>
 
@@ -1055,7 +1119,7 @@ git push [远程仓库名]  [远程分支]3. git 别名
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
