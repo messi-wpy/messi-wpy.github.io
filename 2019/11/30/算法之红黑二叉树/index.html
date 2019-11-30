@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <!-- PACE Progress Bar START -->
+  
+    <script src="https://raw.githubusercontent.com/HubSpot/pace/v1.0.2/pace.min.js"></script>
+    <link rel="stylesheet" href="https://github.com/HubSpot/pace/raw/master/themes/orange/pace-theme-flash.css">
+  
+  
+
+  <!-- PACE Progress Bar START -->
+
+  
+  <title>算法之红黑二叉树 | WPY&#39;s Android Tour</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="keywords" content="算法" />
+  
+  
+  
+  
+  <meta name="description" content="红黑二叉树1.红黑树的产生在网上查找的各种关于红黑树的博客，一般就直接把红黑树的五个性质摆上，直接开始介绍，但并不说为什么要使用遵循这些规则性质，为什么会产生他。最近在看《算法》正好看到了红黑二叉树，在此总结一下。在了解二叉树前必须先提一下2-3树2-3树就是既有2节点又有3节点的树。在我们使用二叉查找树时，不能保证其总在最优情况，也就是保证其为一个平衡的二叉树，只有这时他的查找时间复杂度才是nl">
+<meta name="keywords" content="算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法之红黑二叉树">
+<meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;11&#x2F;30&#x2F;%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BA%A2%E9%BB%91%E4%BA%8C%E5%8F%89%E6%A0%91&#x2F;index.html">
+<meta property="og:site_name" content="WPY&#39;s Android Tour">
+<meta property="og:description" content="红黑二叉树1.红黑树的产生在网上查找的各种关于红黑树的博客，一般就直接把红黑树的五个性质摆上，直接开始介绍，但并不说为什么要使用遵循这些规则性质，为什么会产生他。最近在看《算法》正好看到了红黑二叉树，在此总结一下。在了解二叉树前必须先提一下2-3树2-3树就是既有2节点又有3节点的树。在我们使用二叉查找树时，不能保证其总在最优情况，也就是保证其为一个平衡的二叉树，只有这时他的查找时间复杂度才是nl">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https:&#x2F;&#x2F;ftp.bmp.ovh&#x2F;imgs&#x2F;2019&#x2F;11&#x2F;da02af291d92c06a.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;ftp.bmp.ovh&#x2F;imgs&#x2F;2019&#x2F;11&#x2F;d506c8474ae503eb.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;ftp.bmp.ovh&#x2F;imgs&#x2F;2019&#x2F;11&#x2F;2628fdfc2ca397d4.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;upload-images.jianshu.io&#x2F;upload_images&#x2F;737514-9e4049a8193ce63b.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;ftp.bmp.ovh&#x2F;imgs&#x2F;2019&#x2F;11&#x2F;41449cffadb4f359.jpg">
+<meta property="og:updated_time" content="2019-11-30T15:52:24.647Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;ftp.bmp.ovh&#x2F;imgs&#x2F;2019&#x2F;11&#x2F;da02af291d92c06a.png">
+  
+    <link rel="alternate" href="/atom.xml" title="WPY&#39;s Android Tour" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="https://cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" >
+  <link rel="stylesheet" href="/css/hiero.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+  
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/my.css">
+  <!-- Google Adsense -->
+  
+</head>
+
+<script>
+var themeMenus = {};
+
+  themeMenus["/"] = "Home"; 
+
+  themeMenus["/archives"] = "Archives"; 
+
+  themeMenus["/categories"] = "Categories"; 
+
+  themeMenus["/tags"] = "Tags"; 
+
+  themeMenus["/about"] = "About"; 
+
+</script>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  <header id="allheader" class="site-header" role="banner">
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="WPY&#39;s Android Tour" rel="home"> WPY&#39;s Android Tour </a>
+            
+          </h1>
+
+          
+            <div class="site-description">android开发与开源框架源码学习，java，kotlin等语言学习，linux操作系统</div>
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+            <div class="clearfix sf-menu">
+
+              <ul id="main-nav" class="nmenu sf-js-enabled">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="originBgDiv" style="background: #fff; width: 100%;">
+
+      <div style="max-height:600px; overflow: hidden;  display: flex; display: -webkit-flex; align-items: center;">
+        <img id="originBg" width="100%" alt="" src="">
+      </div>
+
+  </div>
+
+  <script>
+  function setAboutIMG(){
+      var imgUrls = "css/images/pose.jpg,https://source.unsplash.com/collection/954550/1920x1080".split(",");
+      var random = Math.floor((Math.random() * imgUrls.length ));
+      if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+        document.getElementById("originBg").src=imgUrls[random];
+      } else {
+        document.getElementById("originBg").src='/' + imgUrls[random];
+      }
+  }
+  bgDiv=document.getElementById("originBgDiv");
+  if(location.pathname.match('about')){
+    setAboutIMG();
+    bgDiv.style.display='block';
+  }else{
+    bgDiv.style.display='none';
+  }
+  </script>
+
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-算法之红黑二叉树" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      算法之红黑二叉树
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/11/30/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BA%A2%E9%BB%91%E4%BA%8C%E5%8F%89%E6%A0%91/" class="article-date">
+	  <time datetime="2019-11-30T15:51:47.000Z" itemprop="datePublished">November 30, 2019</time>
+	</a>
+
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="红黑二叉树"><a href="#红黑二叉树" class="headerlink" title="红黑二叉树"></a>红黑二叉树</h1><h2 id="1-红黑树的产生"><a href="#1-红黑树的产生" class="headerlink" title="1.红黑树的产生"></a>1.红黑树的产生</h2><p>在网上查找的各种关于红黑树的博客，一般就直接把红黑树的五个性质摆上，直接开始介绍，但并不说为什么要使用遵循这些规则性质，为什么会产生他。最近在看《算法》正好看到了红黑二叉树，在此总结一下。<br>在了解二叉树前必须先提一下2-3树<br><img src="https://ftp.bmp.ovh/imgs/2019/11/da02af291d92c06a.png" alt="2节点"><br><img src="https://ftp.bmp.ovh/imgs/2019/11/d506c8474ae503eb.png" alt="3节点"><br>2-3树就是既有2节点又有3节点的树。在我们使用二叉查找树时，不能保证其总在最优情况，也就是保证其为一个平衡的二叉树，只有这时他的查找时间复杂度才是nlogn,  而他在最坏情况下，很有可能事件复杂度变成n，也就是变成了链表。如下情况：<br><img src="https://ftp.bmp.ovh/imgs/2019/11/2628fdfc2ca397d4.png" alt="最坏情况"><br>所以一般的二叉查找树并不稳定，于是就出现了2-3树。2-3树的插入分许多不同的情况，十分复杂。也正是因为2-3树插入时所做的各种规定改变，使得2-3树最终是会自平衡的，从而达到平衡二叉树的目的。</p>
+<blockquote>
+<p>实现这些不仅需要大量的代码，而却它们所产生的而外开销会可能使算法比标准的二叉查找树更慢。平衡一棵树的初衷是为了消除最坏情况，单我们希望这种保障所需要的代码能够越少越好。于是，就有了红黑树</p>
+</blockquote>
+<h3 id="所以红黑树是2-3树的变形，以2-3树的角度去理解红黑树就容易多了"><a href="#所以红黑树是2-3树的变形，以2-3树的角度去理解红黑树就容易多了" class="headerlink" title="所以红黑树是2-3树的变形，以2-3树的角度去理解红黑树就容易多了"></a><code>所以红黑树是2-3树的变形，以2-3树的角度去理解红黑树就容易多了</code></h3><h2 id="2-介绍"><a href="#2-介绍" class="headerlink" title="2.介绍"></a>2.介绍</h2><p>红黑二叉树背后的基本思想时用标准的<code>二叉查找树</code>（全是2节点）和一些额外的信息（用红黑节点来代替3节点）来表示2-3树。实现：</p>
+<ul>
+<li>红链接将两个2节点连起来构成3节点</li>
+<li>黑链接则是2-3树中的普通链接<br>（有些地方称之为红黑节点，<code>将3节点的第一个元素，作为第二个元素的左节点，并用红色的线连接，此时红色线连接的节点就相当于红色。</code>）  </li>
+</ul>
+<p>于是红黑二叉树和2-3树的等价的定义：</p>
+<ul>
+<li>红链接均为左链接</li>
+<li>没有任何一个节点同时和两条红链接相连</li>
+<li>该树是完美黑色平衡的，即任意空连接到根节点的路径上黑节点的数量相同<br><img src="https://upload-images.jianshu.io/upload_images/737514-9e4049a8193ce63b.png" alt="红黑树与2-3树转换"><br>满足这些条件的红黑树就和2-3树一一对应：如果将红链接画平，那么所有空连接到根节点的路径相同（高度相同），将红链接合并，得到的就是一颗2-3树。这样既保证了二叉树的平衡，又能使用普通二叉树的查找方法，代价很小。<h2 id="变换修复方式："><a href="#变换修复方式：" class="headerlink" title="变换修复方式："></a>变换修复方式：</h2>这两种变换都是局部性的，不会影响到整棵树的黑色平衡性<br><code>其实这些变换都是与2-3树里的插入时需要的变换是一一对应的，只不过红黑二叉树用红黑链将其简化，所以要是不知道这些变换的原因，就请先去学习2-3树的插入变换</code><h3 id="1-旋转"><a href="#1-旋转" class="headerlink" title="1.旋转"></a>1.旋转</h3>在实现某些操作时很可能出现红色有链接后者两条连续的红链接，或两条连续的红链接。所以我们需要对这种情况进行修复：</li>
+<li>左旋转： 需要将一条红色有链接转换为左链接，</li>
+<li>右旋转：相反<br><img src="https://ftp.bmp.ovh/imgs/2019/11/41449cffadb4f359.jpg" alt="旋转"><h3 id="2-颜色转换："><a href="#2-颜色转换：" class="headerlink" title="2.颜色转换："></a>2.颜色转换：</h3></li>
+<li>将两个子节点的颜色变黑，同时将父节点的颜色由黑变红。注意当根节点为红色时我们需要把他变黑，（也就是说根节点总是黑色）这是树的黑链接高度+1（原因参考2-3树的建立）<h3 id="3-操作"><a href="#3-操作" class="headerlink" title="3. 操作"></a>3. 操作</h3>因为这些变换都是局部的，所以我们只需递归的执行即可，只需执行左旋转，右旋转和颜色变化呢这三种简单操作，即可保证插入后的红黑树和2-3树一一对应，沿着插入点到根节点的路径向上移动时所经过的每个节点中顺序完成以下操作：  </li>
+</ul>
+<ol>
+<li>如果右节点是红色而作节点是黑色，则进行左旋转；</li>
+<li>如果左节点是红色的且它的左子节点也是红色，进行右旋转</li>
+<li>如果左右节点均为红色，则进行颜色变化</li>
+</ol>
+<p>仅仅上面三个简单操作就可已概括复杂的2-3树插入时的各种情况</p>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><ul>
+<li>上述方法的代码实现均可在《算法》一书中找到，大部分结论方法也均出自此书中，有兴趣的可自行参考</li>
+<li>一篇很好的讲解2-3树的实现的博客<a href="https://www.jianshu.com/p/08024d26c152" target="_blank" rel="noopener">从2-3树理解红黑树</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+
+      
+            
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/11/25/Android%E8%87%AA%E5%AE%9A%E4%B9%89view-onMeasure/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android自定义view-onMeasure</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article" style="overflow-y: scroll; max-width: 28%;">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#红黑二叉树"><span class="nav-number">1.</span> <span class="nav-text">红黑二叉树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-红黑树的产生"><span class="nav-number">1.1.</span> <span class="nav-text">1.红黑树的产生</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#所以红黑树是2-3树的变形，以2-3树的角度去理解红黑树就容易多了"><span class="nav-number">1.1.1.</span> <span class="nav-text">所以红黑树是2-3树的变形，以2-3树的角度去理解红黑树就容易多了</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-介绍"><span class="nav-number">1.2.</span> <span class="nav-text">2.介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#变换修复方式："><span class="nav-number">1.3.</span> <span class="nav-text">变换修复方式：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-旋转"><span class="nav-number">1.3.1.</span> <span class="nav-text">1.旋转</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-颜色转换："><span class="nav-number">1.3.2.</span> <span class="nav-text">2.颜色转换：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-操作"><span class="nav-number">1.3.3.</span> <span class="nav-text">3. 操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后"><span class="nav-number">1.4.</span> <span class="nav-text">最后</span></a></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+      <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2019 WPY&#39;s Android Tour All Rights Reserved.
+          
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/iTimeTraveler/hexo-theme-hiero" target="_blank">hiero</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var contentdiv = document.getElementById("content");
+
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+</script>
+
+<!-- Custome JS -->
+<script src="/js/my.js"></script>
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>
+
+
+<script src="/js/scripts.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://dnqof95d40fo6.cloudfront.net/atw7f8.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
