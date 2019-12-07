@@ -157,7 +157,7 @@ var themeMenus = {};
         
           <section id="main">
   
-    <article id="post-android gradle plugin中各种版本"  class="article article-type-post" itemscope itemprop="blogPost" >
+    <article id="post-正则表达式"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
     
@@ -165,7 +165,7 @@ var themeMenus = {};
         
   
     <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2019/03/18/android%20gradle%20plugin%E4%B8%AD%E5%90%84%E7%A7%8D%E7%89%88%E6%9C%AC/">Android构建工具各种版本</a>
+      <a class="article-title" href="/2019/03/18/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">正则表达式（Java）</a>
     </h1>
   
 
@@ -173,7 +173,7 @@ var themeMenus = {};
     
     <div class="article-meta">
       
-	Posted on <a href="/2019/03/18/android%20gradle%20plugin%E4%B8%AD%E5%90%84%E7%A7%8D%E7%89%88%E6%9C%AC/" class="article-date">
+	Posted on <a href="/2019/03/18/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" class="article-date">
 	  <time datetime="2019-03-18T01:24:25.000Z" itemprop="datePublished">March 18, 2019</time>
 	</a>
 
@@ -181,30 +181,48 @@ var themeMenus = {};
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="Android构建工具各种版本"><a href="#Android构建工具各种版本" class="headerlink" title="Android构建工具各种版本"></a>Android构建工具各种版本</h1><h2 id="minSdkVersion-lt-targetSdkVersion-lt-compileSdkVersion"><a href="#minSdkVersion-lt-targetSdkVersion-lt-compileSdkVersion" class="headerlink" title="minSdkVersion &lt;= targetSdkVersion &lt;= compileSdkVersion"></a>minSdkVersion &lt;= targetSdkVersion &lt;= compileSdkVersion</h2><h3 id="minSdkversion"><a href="#minSdkversion" class="headerlink" title="minSdkversion:"></a>minSdkversion:</h3><ul>
-<li>作用：告诉应用市场安装该应用的最低版本,也表示了在编程中你必须保证所有的方法的最低sdk都需要大于该值，否则Androidstudio会提醒你添加sdk判断</li>
-</ul>
-<h3 id="compilesdkversion："><a href="#compilesdkversion：" class="headerlink" title="compilesdkversion："></a>compilesdkversion：</h3><ul>
-<li>作用：告诉 Gradle 用哪个 Android SDK 版本编译你的应用。使用任何新添加的 API 就需要使用对应 Level 的 Android SDK。<h3 id="targetsdkversion"><a href="#targetsdkversion" class="headerlink" title="targetsdkversion"></a><code>targetsdkversion</code></h3>这个是比较难于理解的值了</li>
-<li>作用：主要是为了Android系统的<code>向前兼容</code>，targetSdkVersion 所暗示的许多行为变化都记录在 VERSION_CODES 文档中，所以当出现更新了新系统时，如果新系统版本大于了该应用的targetsdkversion版本，就不会在该应用使用最新的变化，<blockquote>
-<p>targetSdkVersion 是 Android 提供向前兼容的主要依据，在应用的 targetSdkVersion 没有更新之前系统不会应用最新的行为变化</p>
-</blockquote>
+        <h1 id="正则表达式（Java）"><a href="#正则表达式（Java）" class="headerlink" title="正则表达式（Java）"></a>正则表达式（Java）</h1><hr>
+<h2 id="JAVA中的反斜杠"><a href="#JAVA中的反斜杠" class="headerlink" title="JAVA中的反斜杠　\:"></a>JAVA中的反斜杠　<code>\</code>:</h2><p>注意：  <strong>在java中反斜杠　\　本身具有特殊含义，表转义字符，所以要想打出 \ 就需要<code>\\</code></strong>(很多语言都是这样)<br>所以，作为转义字符，有<code>\n</code>表换行　…<br>要想输入<code>\</code>,就需要<code>\\</code>,　<code>System.out.print(&quot;\\&quot;)</code>—–&gt; \</p>
+<h2 id="常用的正则表达符号"><a href="#常用的正则表达符号" class="headerlink" title="常用的正则表达符号"></a>常用的正则表达符号</h2><ol>
+<li><code>.</code>  匹配所有单个字符</li>
+<li><code>\</code> 反斜杠，将下一字符标记为特殊字符、文本、反向引用或八进制转义符。例如，”n”匹配字符”n”。”\n”匹配换行符。序列”\\“匹配”\“，”\(“匹配”(“</li>
+<li><code>^</code> <code>$</code>分别表示从开始位置匹配和结尾位置匹配</li>
+<li><code>*</code> 零次或多次匹配前面的字符或子表达式。例如，zo* 匹配”z”和”zoo”</li>
+<li><code>+</code>一次或多次匹配前面的字符或子表达式</li>
+<li><code>?</code>零或一次匹配前面～～</li>
+<li>{n}表示正好匹配n次，{n,}表示<strong>至少</strong>匹配n次，{n,m}表示匹配  &gt;=n,&lt;=m</li>
+<li>(regex):括号表示捕获所匹配的字符串</li>
+<li>[xyz]：方括号表示字符集，匹配匹配包含的任一字符[^xyz]反向字符集</li>
+<li>[a-z] 表示所有小写字母</li>
+<li><code>\b</code>匹配一个字边界，即字与空格间的位置，如”er\b”匹配”never”中的”er”，但不匹配”verb”中的”er”。</li>
+<li><code>\d</code>表示数字，等效[0-9]　　　<code>\D</code>非数字</li>
+<li><code>\s</code>匹配任何空白字符，包括空格、制表符、换页符等。与 [ \f\n\r\t\v] 等效。<code>S</code>非空格</li>
+<li><code>\w</code>匹配任何字类字符，包括下划线。与”[A-Za-z0-9_]”等效。</li>
+</ol>
+<h2 id="Pattern-与Matcher类"><a href="#Pattern-与Matcher类" class="headerlink" title="Pattern 与Matcher类"></a>Pattern 与Matcher类</h2><p>使用；pattern 用其静态方法compile(regex) 创建，有split等方法<br>matcher可以用pattern.matcher(String)来创建，有matches相关，捕获方法<br>注意  </p>
+<ul>
+<li><p>find()方法是部分匹配，是查找输入串中与模式匹配的子串，如果该匹配的串有组还可以使用group()函数。</p>
 </li>
-<li>举个例子，比如：Google表示，为保证用户数据和设备的安全，针对下一代 Android 系统(Android P) 的应用程序，将要求默认使用加密连接，这意味着 Android P 将禁止 App 使用所有未加密的连接，因此运行 Android P 系统的安卓设备无论是接收或者发送流量，未来都不能明码传输，需要使用下一代(Transport Layer Security)传输层安全协议，而 Android Nougat 和 Oreo 则不受影响。<br>所以当实机的Android版本大于27，使用http请求报错时就会not permitted by network security policy，如何解决呢？<br>那么这时，我们就可以利用targetsdkversion，将其设置为27，那么，当app运行在sdk28（大于27）的真机上时，他就不会去使用这条限制（不能使用http），而是使用sdk 27的规则，（当然这也限制了你不能使用其他sdk 28的新功能）。</li>
-<li>所以targetsdkversion的含义就是：我的这个app的目标sdk就是 27，我已经完全测试好了，跑在sdk27上没有一点问题，如果你的版本大于27，那就请先使用27的sdk，先不要使用你的高版本sdk，否则有些地方就可能出错。等我什么时候适配好了，我将sdk改为了28，那么你才能使用最新的sdk功能。</li>
+<li><p>matches()是全部匹配，是将整个输入串与模式匹配，如果要验证一个输入的数据是否为数字类型或其他类型，一般要用matches()。</p>
+</li>
+<li><p>必须先match.find(),然后才会捕获匹配，然后match.group()获取find结果，<br>可以<code>while(match.find())</code>来一直搜索所有匹配到的</p>
+</li>
 </ul>
-<h3 id="buildtoolversion"><a href="#buildtoolversion" class="headerlink" title="buildtoolversion"></a>buildtoolversion</h3><p>-作用：表示构建工具的版本，其中包括了打包工具aapt、dx等等，所以应该大于compile版本</p>
+<h2 id="分组"><a href="#分组" class="headerlink" title="分组"></a>分组</h2><blockquote>
+<p>从正则表达式左侧开始，每出现一个左括号“(”记做一个分组，分组编号从1开始。0代表整个表达式。</p>
+</blockquote>
+<p>主要用于matcher.find(),,,  matcher.group(index)<br>group(0)特指所匹配到的整个字符串，不计入group的length</p>
 
       
     </div>
     <footer class="entry-meta entry-footer">
       
 	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/Android/">Android</a>, <a class="article-category-link" href="/categories/Gradle/">Gradle</a>
+    <a class="article-category-link" href="/categories/Java/">Java</a>
 
       
   <span class="ico-tags"></span>
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Gradle/" rel="tag">Gradle</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
 
       
             
@@ -1039,7 +1057,7 @@ git push [远程仓库名]  [远程分支]3. git 别名
               <div class="widget-entry-summary" style="margin: 0;">
             
 
-              <h6 style="margin: 0;"><a href="/2019/11/22/Android%E8%87%AA%E5%AE%9A%E4%B9%89view%E7%BB%83%E4%B9%A0/">Android自定义view练习</a></h6>
+              <h6 style="margin: 0;"><a href="/2019/11/22/Android%E8%87%AA%E5%AE%9A%E4%B9%89view%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95/">Android自定义view构造方法</a></h6>
               <span>November 22, 2019</span>
             </div>
 
