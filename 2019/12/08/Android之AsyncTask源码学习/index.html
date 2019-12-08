@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <!-- PACE Progress Bar START -->
+  
+    <script src="https://raw.githubusercontent.com/HubSpot/pace/v1.0.2/pace.min.js"></script>
+    <link rel="stylesheet" href="https://github.com/HubSpot/pace/raw/master/themes/orange/pace-theme-flash.css">
+  
+  
+
+  <!-- PACE Progress Bar START -->
+
+  
+  <title>android之asynctask源码学习 | WPY&#39;s Android Tour</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  
+  
+  
+  <meta name="description" content="AsyncTask1.定义，介绍： asynctask是Android中的一个自带的轻量级异步类，通过他可以轻松的实现工作线程和UI线程之间的通信和线程切换（其实也只能在工作和ui线程之间切换，稍后会提到） asynctask是一个抽象类，所以我们需要创建他的子类，一般重写他的四个方法即可：123456789101112131415&#x2F;&#x2F;这个就是要在后台做的工作,他将运行在后台工作线程上@Worke">
+<meta name="keywords" content="android,java,kotlin,源码学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android之AsyncTask源码学习">
+<meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2019&#x2F;12&#x2F;08&#x2F;Android%E4%B9%8BAsyncTask%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0&#x2F;index.html">
+<meta property="og:site_name" content="WPY&#39;s Android Tour">
+<meta property="og:description" content="AsyncTask1.定义，介绍： asynctask是Android中的一个自带的轻量级异步类，通过他可以轻松的实现工作线程和UI线程之间的通信和线程切换（其实也只能在工作和ui线程之间切换，稍后会提到） asynctask是一个抽象类，所以我们需要创建他的子类，一般重写他的四个方法即可：123456789101112131415&#x2F;&#x2F;这个就是要在后台做的工作,他将运行在后台工作线程上@Worke">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.loli.net&#x2F;2019&#x2F;12&#x2F;08&#x2F;jsRPqCVQ7GOKwBA.png">
+<meta property="og:updated_time" content="2019-12-08T11:53:59.100Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;i.loli.net&#x2F;2019&#x2F;12&#x2F;08&#x2F;jsRPqCVQ7GOKwBA.png">
+  
+    <link rel="alternate" href="/atom.xml" title="WPY&#39;s Android Tour" type="application/atom+xml">
+  
+  <link rel="icon" href="/css/images/favicon.ico">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic" rel="stylesheet" type="text/css">
+  <link href="https://cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+  <style type="text/css">
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/9749f0/00000000000000000001008f/27/l?subset_id=2&fvd=n5) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/90cf9f/000000000000000000010091/27/l?subset_id=2&fvd=n7) format("woff2");font-weight:500;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/8a5494/000000000000000000013365/27/l?subset_id=2&fvd=n4) format("woff2");font-weight:lighter;font-style:normal;}
+    @font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/d337d8/000000000000000000010095/27/l?subset_id=2&fvd=i4) format("woff2");font-weight:400;font-style:italic;}</style>
+    
+  <link rel="stylesheet" id="athemes-headings-fonts-css" href="//fonts.googleapis.com/css?family=Yanone+Kaffeesatz%3A200%2C300%2C400%2C700&amp;ver=4.6.1" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" >
+  <link rel="stylesheet" href="/css/hiero.css" >
+  <link rel="stylesheet" href="/css/glyphs.css" >
+  
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/my.css">
+  <!-- Google Adsense -->
+  
+</head>
+
+<script>
+var themeMenus = {};
+
+  themeMenus["/"] = "Home"; 
+
+  themeMenus["/archives"] = "Archives"; 
+
+  themeMenus["/categories"] = "Categories"; 
+
+  themeMenus["/tags"] = "Tags"; 
+
+  themeMenus["/about"] = "About"; 
+
+</script>
+
+
+  <body data-spy="scroll" data-target="#toc" data-offset="50">
+
+
+  <header id="allheader" class="site-header" role="banner">
+  <div class="clearfix container">
+      <div class="site-branding">
+
+          <h1 class="site-title">
+            
+              <a href="/" title="WPY&#39;s Android Tour" rel="home"> WPY&#39;s Android Tour </a>
+            
+          </h1>
+
+          
+            <div class="site-description">android开发与开源框架源码学习，java，kotlin等语言学习，linux操作系统</div>
+          
+            
+          <nav id="main-navigation" class="main-navigation" role="navigation">
+            <a class="nav-open">Menu</a>
+            <a class="nav-close">Close</a>
+            <div class="clearfix sf-menu">
+
+              <ul id="main-nav" class="nmenu sf-js-enabled">
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/">Home</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/archives">Archives</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/categories">Categories</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/tags">Tags</a> </li>
+                    
+                      <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1663"> <a class="" href="/about">About</a> </li>
+                    
+              </ul>
+            </div>
+          </nav>
+
+
+      </div>
+  </div>
+</header>
+
+
+  <div id="originBgDiv" style="background: #fff; width: 100%;">
+
+      <div style="max-height:600px; overflow: hidden;  display: flex; display: -webkit-flex; align-items: center;">
+        <img id="originBg" width="100%" alt="" src="">
+      </div>
+
+  </div>
+
+  <script>
+  function setAboutIMG(){
+      var imgUrls = "css/images/pose.jpg,https://source.unsplash.com/collection/954550/1920x1080".split(",");
+      var random = Math.floor((Math.random() * imgUrls.length ));
+      if (imgUrls[random].startsWith('http') || imgUrls[random].indexOf('://') >= 0) {
+        document.getElementById("originBg").src=imgUrls[random];
+      } else {
+        document.getElementById("originBg").src='/' + imgUrls[random];
+      }
+  }
+  bgDiv=document.getElementById("originBgDiv");
+  if(location.pathname.match('about')){
+    setAboutIMG();
+    bgDiv.style.display='block';
+  }else{
+    bgDiv.style.display='none';
+  }
+  </script>
+
+
+
+  <div id="container">
+    <div id="wrap">
+            
+      <div id="content" class="outer">
+        
+          <section id="main" style="float:none;"><article id="post-Android之AsyncTask源码学习" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" class="article-title" itemprop="name">
+      Android之AsyncTask源码学习
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/12/08/Android%E4%B9%8BAsyncTask%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="article-date">
+	  <time datetime="2019-12-08T11:53:31.000Z" itemprop="datePublished">December 8, 2019</time>
+	</a>
+
+      
+	<span id="busuanzi_container_page_pv">
+	  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	</span>
+
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="AsyncTask"><a href="#AsyncTask" class="headerlink" title="AsyncTask"></a>AsyncTask</h1><h2 id="1-定义，介绍："><a href="#1-定义，介绍：" class="headerlink" title="1.定义，介绍："></a>1.定义，介绍：</h2><ul>
+<li>asynctask是Android中的一个自带的轻量级异步类，通过他可以轻松的实现工作线程和UI线程之间的通信和线程切换（其实也只能在工作和ui线程之间切换，稍后会提到）</li>
+<li>asynctask是一个抽象类，所以我们需要创建他的子类，一般重写他的四个方法即可：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">//这个就是要在后台做的工作,他将运行在后台工作线程上</span><br><span class="line">@WorkerThread</span><br><span class="line">protected abstract Result doInBackground(Params... params);</span><br><span class="line"></span><br><span class="line">//这个时开始执行前的操作，运行在主线程上</span><br><span class="line">@MainThread</span><br><span class="line">protected void onPreExecute() ；</span><br><span class="line"></span><br><span class="line">//doInBackground完成后调用</span><br><span class="line">@MainThread</span><br><span class="line">protected void onPostExecute(Result result) </span><br><span class="line"></span><br><span class="line">//实时更新，通过在doInBackground中调用publishProgress()方法</span><br><span class="line">@MainThread</span><br><span class="line">protected void onProgressUpdate(Progress... values)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="2-源码"><a href="#2-源码" class="headerlink" title="2.源码"></a>2.源码</h2><h3 id="1-创建："><a href="#1-创建：" class="headerlink" title="1.创建："></a>1.创建：</h3><ul>
+<li>问题：为什么说只能在工作线程和UI线程之间通信？我自己建一个looper线程也不行吗？（当然这种情况也很少）<br>看他的三个构造函数：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"> public AsyncTask() &#123;</span><br><span class="line">        this((Looper) null);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line">     * Creates a new asynchronous task. This constructor must be invoked on the UI thread.</span><br><span class="line">     *</span><br><span class="line">     * @hide</span><br><span class="line">     */</span><br><span class="line">public AsyncTask(@Nullable Handler handler) &#123;</span><br><span class="line">        this(handler != null ? handler.getLooper() : null);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> /**</span><br><span class="line">     * Creates a new asynchronous task. This constructor must be invoked on the UI thread.</span><br><span class="line">     *</span><br><span class="line">     * @hide</span><br><span class="line">     */</span><br><span class="line"> public AsyncTask(@Nullable Looper callbackLooper) &#123;</span><br><span class="line">        mHandler = callbackLooper == null || callbackLooper == Looper.getMainLooper()</span><br><span class="line">            ? getMainHandler()</span><br><span class="line">            : new Handler(callbackLooper);  </span><br><span class="line"></span><br><span class="line">            ...</span><br><span class="line">            ...</span><br><span class="line">            ...</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+可以看出不管调用哪个都会指向第三个构造方法，关键代码<br>`mHandler = callbackLooper == null || callbackLooper == Looper.getMainLooper()<pre><code>? getMainHandler()
+: new Handler(callbackLooper);  `  </code></pre>所以，如果调用第一个构造函数，那么传入的Looper为null；如果调用第二个则传入handler.getLooper(),如果他为MainLooper的话，也将和第一个构造函数一样进入了 getMainHandler()方法：创建了一个拥有主线程的InternalHandler<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">private static Handler getMainHandler() &#123;</span><br><span class="line">       synchronized (AsyncTask.class) &#123;</span><br><span class="line">           if (sHandler == null) &#123;</span><br><span class="line">               sHandler = new InternalHandler(Looper.getMainLooper());</span><br><span class="line">           &#125;</span><br><span class="line">           return sHandler;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">private static class InternalHandler extends Handler &#123;</span><br><span class="line">       public InternalHandler(Looper looper) &#123;</span><br><span class="line">           super(looper);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       @SuppressWarnings(&#123;&quot;unchecked&quot;, &quot;RawUseOfParameterizedType&quot;&#125;)</span><br><span class="line">       @Override</span><br><span class="line">       public void handleMessage(Message msg) &#123;</span><br><span class="line">           AsyncTaskResult&lt;?&gt; result = (AsyncTaskResult&lt;?&gt;) msg.obj;</span><br><span class="line">           switch (msg.what) &#123;</span><br><span class="line">               case MESSAGE_POST_RESULT:</span><br><span class="line">                   // There is only one result</span><br><span class="line">                   result.mTask.finish(result.mData[0]);</span><br><span class="line">                   break;</span><br><span class="line">               case MESSAGE_POST_PROGRESS:</span><br><span class="line">                   result.mTask.onProgressUpdate(result.mData);</span><br><span class="line">                   break;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+那如果他不是mainlooper的话，就创建了一个new Handler(callbackLooper)，然而这个handle既没有传入callback，也没有重写其handleMessage方法，其实是一个空的handle，但他可以调用msg的callback呀。就算这样，那我是不是仍然可以创建一个不与主线程（UI线程）相连的handle，那为啥还说只能用在ui与工作线程之前呢？<br>哈哈，请再看一下上面贴上的三个构造函数的源码，我专门把第二个和第三个的注释也贴了上去，有一个很重要的注解<code>@hide</code>，也就是说google把第二个和第三个构造函数给隐藏起来了，不对开发者开放，我们根本访问不到（虽然能看到，而且时public，感兴趣可以查一下这个注解）。所以我们只能用第一个构造函数，传入空的looper，从而调用getMainHandler();</li>
+<li>顺便提一下handle 的执行顺序（dispatchMessage）<ol>
+<li>msg的callback不为空，调用handleCallback方法（message.callback.run()）</li>
+<li>mCallback不为空，调用mCallback.handleMessage(msg)</li>
+<li>最后如果其他都为空，执行Handler自身的 handleMessage(msg) 方法</li>
+</ol>
+</li>
+</ul>
+<h3 id="2-执行："><a href="#2-执行：" class="headerlink" title="2.执行："></a>2.执行：</h3><ul>
+<li>包装<code>doInBackground</code>方法。<br>创建完handle后，在第三个构造函数中可以看出，他接着创建了work（实现了callable）和futur（FutureTask对象其实就是更方便操作线程，Futrue可以监视目标线程调用call的情况，当你调用Future的get()方法以获得结果时，当前线程就开始阻塞，直接call方法结束返回结果。）其中很关键的代码就是在work中调用了，然后又将work用futuretask封装，在之后的调用中会最后提交给线程池<br><code>result = doInBackground(mParams);</code><br><code>mFuture = new FutureTask&lt;Result&gt;(mWorker) {......}</code>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">mWorker = new WorkerRunnable&lt;Params, Result&gt;() &#123;</span><br><span class="line">           public Result call() throws Exception &#123;</span><br><span class="line">               mTaskInvoked.set(true);</span><br><span class="line">               Result result = null;</span><br><span class="line">               try &#123;</span><br><span class="line">                   Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);</span><br><span class="line">                   //noinspection unchecked</span><br><span class="line">                   result = doInBackground(mParams);</span><br><span class="line">                   Binder.flushPendingCommands();</span><br><span class="line">               &#125; catch (Throwable tr) &#123;</span><br><span class="line">                   mCancelled.set(true);</span><br><span class="line">                   throw tr;</span><br><span class="line">               &#125; finally &#123;</span><br><span class="line">                   postResult(result);</span><br><span class="line">               &#125;</span><br><span class="line">               return result;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;;</span><br></pre></td></tr></table></figure>
+最后在finaly里调用<code>postResult(result)</code>，将结果传递给handle，将调用handle（InternalHandler）的handleMessage，他处理两个，一个是执行结束<code>finish()</code>,从而调用了<code>onPostExecute</code>，另一个是在doInBackground里用户调用的publishProgress像handle发送消息，从而调用<code>onProgressUpdate</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">public void handleMessage(Message msg) &#123;</span><br><span class="line">           AsyncTaskResult&lt;?&gt; result = (AsyncTaskResult&lt;?&gt;) msg.obj;</span><br><span class="line">           switch (msg.what) &#123;</span><br><span class="line">               case MESSAGE_POST_RESULT:</span><br><span class="line">                   // There is only one result</span><br><span class="line">                   result.mTask.finish(result.mData[0]);</span><br><span class="line">                   break;</span><br><span class="line">               case MESSAGE_POST_PROGRESS:</span><br><span class="line">                   result.mTask.onProgressUpdate(result.mData);</span><br><span class="line">                   break;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       protected final void publishProgress(Progress... values) &#123;</span><br><span class="line">       if (!isCancelled()) &#123;</span><br><span class="line">           getHandler().obtainMessage(MESSAGE_POST_PROGRESS,</span><br><span class="line">                   new AsyncTaskResult&lt;Progress&gt;(this, values)).sendToTarget();</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">    private void finish(Result result) &#123;</span><br><span class="line">       if (isCancelled()) &#123;</span><br><span class="line">           onCancelled(result);</span><br><span class="line">       &#125; else &#123;</span><br><span class="line">           onPostExecute(result);</span><br><span class="line">       &#125;</span><br><span class="line">       mStatus = Status.FINISHED;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="asynctask的两个线程池："><a href="#asynctask的两个线程池：" class="headerlink" title="asynctask的两个线程池："></a>asynctask的两个线程池：</h3><pre><code>- `public static final Executor THREAD_POOL_EXECUTOR`：</code></pre><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">private static final BlockingQueue&lt;Runnable&gt; sPoolWorkQueue =</span><br><span class="line">           new LinkedBlockingQueue&lt;Runnable&gt;(128);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">   /**</span><br><span class="line">    * An &#123;@link Executor&#125; that can be used to execute tasks in parallel.</span><br><span class="line">    */</span><br><span class="line">   public static final Executor THREAD_POOL_EXECUTOR;</span><br><span class="line"></span><br><span class="line">   static &#123;</span><br><span class="line">       ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(</span><br><span class="line">               CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_SECONDS, TimeUnit.SECONDS,</span><br><span class="line">               sPoolWorkQueue, sThreadFactory);</span><br><span class="line">       threadPoolExecutor.allowCoreThreadTimeOut(true);</span><br><span class="line">       THREAD_POOL_EXECUTOR = threadPoolExecutor;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出，这是一个核心线程数最小为2的线程池，它是用来并行执行task的，但当达到核心线程最大值后，依旧会在阻塞队列里等待</p>
+<ul>
+<li><p><code>public static final Executor SERIAL_EXECUTOR = new SerialExecutor()</code>  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">private static class SerialExecutor implements Executor &#123;</span><br><span class="line">      final ArrayDeque&lt;Runnable&gt; mTasks = new ArrayDeque&lt;Runnable&gt;();</span><br><span class="line">      Runnable mActive;</span><br><span class="line"></span><br><span class="line">      public synchronized void execute(final Runnable r) &#123;</span><br><span class="line">          mTasks.offer(new Runnable() &#123;</span><br><span class="line">              public void run() &#123;</span><br><span class="line">                  try &#123;</span><br><span class="line">                      r.run();</span><br><span class="line">                  &#125; finally &#123;</span><br><span class="line">                      scheduleNext();</span><br><span class="line">                  &#125;</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;);</span><br><span class="line">          if (mActive == null) &#123;</span><br><span class="line">              scheduleNext();</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      protected synchronized void scheduleNext() &#123;</span><br><span class="line">          if ((mActive = mTasks.poll()) != null) &#123;</span><br><span class="line">              THREAD_POOL_EXECUTOR.execute(mActive);</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>所以第二个 是一个顺序串行执行的Executor：每次将任务提交到数组双向队列里，execute后会依次执行，然后scheduleNext获取下一个任务。</p>
+</li>
+<li><p>AsyncTask中默认时使用的第二个，SERIAL_EXECUTOR，串行执行，<br><code>private static volatile Executor sDefaultExecutor = SERIAL_EXECUTOR;</code><br>当然你也可以修改</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/** @hide */</span><br><span class="line">    public static void setDefaultExecutor(Executor exec) &#123;</span><br><span class="line">        sDefaultExecutor = exec;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>然而很不幸，他也被hide起来了…但是可以在接下来的入口处，直接调用<code>executeOnExecutor(Executor exec,Params... params)</code>方法传入指定的Executor</p>
+</li>
+</ul>
+<h3 id="开始执行的入口："><a href="#开始执行的入口：" class="headerlink" title="开始执行的入口："></a>开始执行的入口：</h3><p>当创建完asynctask后，调用asynctask.execute（Params… params）就可开始执行，然后其实是调用了<code>executeOnExecutor(Executor exec,Params... params)</code>这个方法，传入 sDefaultExecutor和doInbackgroud方法的参数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">public final AsyncTask&lt;Params, Progress, Result&gt; executeOnExecutor(Executor exec,</span><br><span class="line">           Params... params) &#123;</span><br><span class="line">       if (mStatus != Status.PENDING) &#123;</span><br><span class="line">           switch (mStatus) &#123;</span><br><span class="line">               case RUNNING:</span><br><span class="line">                   throw new IllegalStateException(&quot;Cannot execute task:&quot;</span><br><span class="line">                           + &quot; the task is already running.&quot;);</span><br><span class="line">               case FINISHED:</span><br><span class="line">                   throw new IllegalStateException(&quot;Cannot execute task:&quot;</span><br><span class="line">                           + &quot; the task has already been executed &quot;</span><br><span class="line">                           + &quot;(a task can be executed only once)&quot;);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       mStatus = Status.RUNNING;</span><br><span class="line"></span><br><span class="line">       onPreExecute();</span><br><span class="line"></span><br><span class="line">       mWorker.mParams = params;</span><br><span class="line">       exec.execute(mFuture);</span><br><span class="line"></span><br><span class="line">       return this;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="四个回调执行的线程："><a href="#四个回调执行的线程：" class="headerlink" title="四个回调执行的线程："></a><code>四个回调执行的线程</code>：</h3><pre><code>- `onPreExecute()`：</code></pre><p>从上面代码我们可以看到在这里执行了      onPreExecute()，所以，在哪个线程执行了asynctask.execute（Params… params）， onPreExecute()他就在哪个线程执行<br>    -   <code>doInBackGround()</code>：被放到了asynctask的线程池里执行<br>    - <code>onProgressUpdate（）和onPostExecute()</code>这两个都是在handler的回调handleMessage里被调用的，所以关键就在handler里的Looper是哪个线程的，他们俩就在哪个线程执行（注意，这里其实跟handler在哪个线程创建没关系，可以在子线程创建handler而传入主线程的Looper）而我们之前也分析了，现在handler的looper只能是主线程的 ，所以这两个方法也是在主线程执行的<br>如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Handler handler=new Handler(getMainLooper(), new Handler.Callback() &#123;</span><br><span class="line">                   @Override</span><br><span class="line">                   public boolean handleMessage(Message msg) &#123;</span><br><span class="line">                       Log.i(TAG, &quot;handleMessage: &quot;+Thread.currentThread());</span><br><span class="line">                       titleBar.setTitle(&quot;hahahah&quot;);</span><br><span class="line">                       return false;</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;);</span><br></pre></td></tr></table></figure>
+<p>下面是我的测试例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public class AsyncTest extends AsyncTask&lt;String,Integer,String&gt; &#123;</span><br><span class="line">    public static final String TAG=&quot;AsyncTask&quot;;</span><br><span class="line"></span><br><span class="line">    public AsyncTest()&#123;</span><br><span class="line">        super();</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    protected String doInBackground(String... strings) &#123;</span><br><span class="line">        Log.i(TAG, &quot;doinbackground: &quot;+Thread.currentThread()+strings);</span><br><span class="line">        try &#123;</span><br><span class="line">            Thread.sleep(3000);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        publishProgress(2);</span><br><span class="line"></span><br><span class="line">        return &quot;finish&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onPreExecute() &#123;</span><br><span class="line">        Log.i(TAG, &quot;onPreExecute: start&quot;);</span><br><span class="line">        Log.i(TAG, &quot;onPreExecute: &quot;+Thread.currentThread());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onPostExecute(String s) &#123;</span><br><span class="line">        Log.i(TAG, &quot;onPostExecute: &quot;+s);</span><br><span class="line">        Log.i(TAG, &quot;onpostexecute: &quot;+Thread.currentThread());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onProgressUpdate(Integer... values) &#123;</span><br><span class="line">        Log.i(TAG, &quot;onProgressUpdate: &quot;+values[0]);</span><br><span class="line">        Log.i(TAG, &quot;onprogressupdate: &quot;+Thread.currentThread());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Activity里：</span><br><span class="line"></span><br><span class="line"> protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.acitivty_view_test);</span><br><span class="line"></span><br><span class="line">        new Thread(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">               AsyncTest test=new AsyncTest();</span><br><span class="line">               test.execute(&quot;aaa&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>结果：<br><img src="https://i.loli.net/2019/12/08/jsRPqCVQ7GOKwBA.png" alt="asynctask.png"><br>所以，asynctask也不一定非得在主线程创建和执行</p>
+
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
+      
+      
+            
+      
+        
+	<div id="comment">
+		<!-- 来必力City版安装代码 -->
+		<div id="lv-container" data-id="city" data-uid="MTAyMC8yOTQ4MS82MDQ5">
+		<script type="text/javascript">
+		   (function(d, s) {
+		       var j, e = d.getElementsByTagName(s)[0];
+
+		       if (typeof LivereTower === 'function') { return; }
+
+		       j = d.createElement(s);
+		       j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+		       j.async = true;
+
+		       e.parentNode.insertBefore(j, e);
+		   })(document, 'script');
+		</script>
+		<noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+		</div>
+		<!-- City版安装代码已完成 -->
+	</div>
+
+
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/11/30/%E7%AE%97%E6%B3%95%E4%B9%8B%E7%BA%A2%E9%BB%91%E4%BA%8C%E5%8F%89%E6%A0%91/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">算法之红黑二叉树</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<!-- Table of Contents -->
+
+  <aside id="sidebar">
+    <div id="toc" class="toc-article" style="overflow-y: scroll; max-width: 28%;">
+    <strong class="toc-title">Contents</strong>
+    
+      <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AsyncTask"><span class="nav-number">1.</span> <span class="nav-text">AsyncTask</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-定义，介绍："><span class="nav-number">1.1.</span> <span class="nav-text">1.定义，介绍：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-源码"><span class="nav-number">1.2.</span> <span class="nav-text">2.源码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-创建："><span class="nav-number">1.2.1.</span> <span class="nav-text">1.创建：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-执行："><span class="nav-number">1.2.2.</span> <span class="nav-text">2.执行：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#asynctask的两个线程池："><span class="nav-number">1.2.3.</span> <span class="nav-text">asynctask的两个线程池：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开始执行的入口："><span class="nav-number">1.2.4.</span> <span class="nav-text">开始执行的入口：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四个回调执行的线程："><span class="nav-number">1.2.5.</span> <span class="nav-text">四个回调执行的线程：</span></a></li></ol></li></ol></li></ol>
+    
+    </div>
+  </aside>
+</section>
+        
+      </div>
+      <footer id="footer" class="site-footer">
+  
+
+  <div class="clearfix container">
+      <div class="site-info">
+	      &copy; 2019 WPY&#39;s Android Tour All Rights Reserved.
+          
+            <span id="busuanzi_container_site_uv">
+              本站访客数<span id="busuanzi_value_site_uv"></span>人次  
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+          
+      </div>
+      <div class="site-credit">
+        Theme by <a href="https://github.com/iTimeTraveler/hexo-theme-hiero" target="_blank">hiero</a>
+      </div>
+  </div>
+</footer>
+
+
+<!-- min height -->
+
+<script>
+    var contentdiv = document.getElementById("content");
+
+    contentdiv.style.minHeight = document.body.offsetHeight - document.getElementById("allheader").offsetHeight - document.getElementById("footer").offsetHeight + "px";
+</script>
+
+<!-- Custome JS -->
+<script src="/js/my.js"></script>
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav> -->
+    
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>
+
+
+<script src="/js/scripts.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s95.cnzz.com/z_stat.php?id=1260716016&web_id=1260716016" language="JavaScript"></script>
+  </div>
+
+
+
+	<script async src="https://dnqof95d40fo6.cloudfront.net/atw7f8.js">
+	</script>
+
+
+
+
+
+
+  </div>
+
+  <a id="rocket" href="#top" class=""></a>
+  <script type="text/javascript" src="/js/totop.js" async=""></script>
+</body>
+</html>
