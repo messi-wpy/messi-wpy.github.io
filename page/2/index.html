@@ -157,6 +157,74 @@ var themeMenus = {};
         
           <section id="main">
   
+    <article id="post-AndroidFragment学习"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2019/04/25/AndroidFragment%E5%AD%A6%E4%B9%A0/">Android FragmentManager使用</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	Posted on <a href="/2019/04/25/AndroidFragment%E5%AD%A6%E4%B9%A0/" class="article-date">
+	  <time datetime="2019-04-24T16:00:00.000Z" itemprop="datePublished">April 25, 2019</time>
+	</a>
+
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Android-FragmentManager使用"><a href="#Android-FragmentManager使用" class="headerlink" title="Android FragmentManager使用"></a>Android FragmentManager使用</h1><h3 id="1-获取fragmentManager"><a href="#1-获取fragmentManager" class="headerlink" title="1.获取fragmentManager"></a>1.获取fragmentManager</h3><p>要想使用好fragmentmanager，第一步肯定先要正确获取他呀：  </p>
+<ul>
+<li>获取activity中的fragmentmanager：在activity中 <code>getFragmentManager()</code>或<code>getSupportFragmentManager()</code>（这个用于support包的fragment，向下兼容，现api28后变成support包全部转为Androidx）如果在fragment中则可以先<code>getactivity（）</code>获取到其依赖的activity</li>
+<li>获取在fragment中的fragmentmanager：<code>getChildFragmentManager()</code>这种情况用于fragment中嵌套fragment，同时子fragment可以通过<code>getParentFragment()</code>获得</li>
+</ul>
+<h3 id="2-事务"><a href="#2-事务" class="headerlink" title="2.事务"></a>2.事务</h3><ul>
+<li>在Android中fragmentManager是以事务为单位来管理的，每次我们都通过<code>fragmentManager.beginTransaction()</code>来获得一个FragmentTransaction对象，然后进行添加，替换，删除等，最后commit提交，这整个过程从begin到commit进行的所有操作就是一个事务，每个commit提交一个事务</li>
+<li><strong>这里要注意commit</strong>调用commit()方法并不立即执行这个事务，而是在Activity的UI线程之上（”main”线程）调度运行，以便这个线程能够尽快执行这个事务，这意味这个commit是异步的，所以必要时可以通过<code>commitNow()</code>来立即执行</li>
+</ul>
+<h3 id="2-fragmentManager的各种方法"><a href="#2-fragmentManager的各种方法" class="headerlink" title="2.fragmentManager的各种方法"></a>2.fragmentManager的各种方法</h3><ul>
+<li><code>add()</code>add方法会直接将一个fragment添加到指定的id布局中，不管这个布局容器中原来有没有，无条件覆盖。所以会叠加，而之前的fragment只是被遮挡，view并不会被摧毁</li>
+<li><code>getFragmentbyTag()</code>与<code>getFragmentbyId()</code>这两个方法可以获得有相应的tag或id属性的fragment（这两个属性也可以通过xml里布局设置），那么就出现了有多个fragment拥有相同的tag和id，那调用该方法获得的是哪个呢？实测获得的是最顶层的那个fragment，也就是最近添加的</li>
+<li><code>replace()</code>该方法不同于add()可有其注释的出，relplace()会先相应调用该布局id容器中中所有的add的fragment的<code>remove()</code>方法，然后在调用<code>add()</code>方法</li>
+<li><code>remove()</code>移除这个fragment，最后会调用<code>onDetach()</code></li>
+<li><code>show()</code>和<code>hide()</code> ,这里要注意调用这两个方法并不会走fragment的生命周期，which means 并不会调用<code>onPause（）</code>，<code>onStop</code>方法，而是只调用了<code>onHiddenChanged()</code>方法，所有改变应在这个方法里，重写之</li>
+<li><code>addToBackTrack()</code>最后说一下fragment的回退栈，注意，只有在commit事务是调用了<code>addToBackTrack()</code>方法，才会有回退栈，才会在回退栈里添加，否则就没有回退栈，pop方法不会有任何改变。 <code>addToBackTrack()</code>即把本次事务的所有操作储存起来，<strong>注意</strong>调用了addtobaktrack后remove方法不会真的把fragment移除，而只是distroy了它的view，并没有调用<code>onDetach()</code>,也就是说它还连接在宿主中。</li>
+<li><code>popbackTrack</code>，该方法即将回退栈中的最近的一次事务pop出来，也就是反过来调用方法，add就是remove，remove就add，所以如果这个调用了replace，那么pop后就会将这个replace add的fragment移除，然后在把之前remove的所有fragment add到里面。而之前就存在的fragment依然存在，没有变化，就像是add覆盖到上面一样。所以加入回退栈后pop可以回到上次操作</li>
+</ul>
+<hr>
+<h3 id="最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment"><a href="#最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment" class="headerlink" title="最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment"></a>最后，fragment在现在开发中已经十分常用，所以必须完全理解他的生命周期和fragmentManager如何管理它，这样才能高效的复用，利用fragment</h3>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fragment/" rel="tag">fragment</a></li></ul>
+
+      
+            
+      
+    </footer>
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+    
+
+  
     <article id="post-Android JetPack 架构"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -792,75 +860,6 @@ free software不仅是因为他是免费的，他更是开源的，是真正自�
     
 
   
-    <article id="post-git命令总结"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2018/08/23/git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/">git命令总结</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	Posted on <a href="/2018/08/23/git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/" class="article-date">
-	  <time datetime="2018-08-23T15:35:46.000Z" itemprop="datePublished">August 23, 2018</time>
-	</a>
-
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-
-          
-            <div class="entry-summary" style="margin-left:0;">
-            Linus Torvalds —— Just For Fun
-HEAD头指针
-1.获取帮助
-git help 
-git  –help2.建立仓库（工作平台）
-git init      
-git add &lt;文件名&gt;( 跟踪该文件)（添加到暂存区）
-git commit -m“ ….”（添加到git仓库）git commit 不加参数则直接打开vim编译与.gitignore格式相同，+’-m’则直接在命令行中输入提交信息如果＋ “ -a”参数则可以跳过add 直接一步操作，跳过使用暂存区如　git commit -a -m”跳过暂存区”
-git push [远程仓库名]  [远程分支]3. git 别名
-如　git config –global alias.ci commi...
-          
-
-        
-          <p class="article-more-link">
-            <a href="/2018/08/23/git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/#more">Continue Reading →</a>
-          </p>
-        </div>
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/Git/">Git</a>, <a class="article-category-link" href="/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/">开发工具</a>
-
-      
-  <span class="ico-tags"></span>
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/" rel="tag">Git</a></li></ul>
-
-      
-            
-      
-    </footer>
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-    
-
-  
 
 
   <nav id="page-nav">
@@ -961,6 +960,18 @@ git push [远程仓库名]  [远程分支]3. git 别名
               <div class="widget-entry-summary" style="margin: 0;">
             
 
+              <h6 style="margin: 0;"><a href="/2020/01/13/Android%E4%B9%8Blayoutinflate%E5%AD%A6%E4%B9%A0/">Android之layoutinflate学习</a></h6>
+              <span>January 13, 2020</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
               <h6 style="margin: 0;"><a href="/2019/12/15/Java-List%E9%9B%86%E5%90%88%E4%BD%BF%E7%94%A8%E5%B0%8F%E7%BB%93/">Java List集合使用小结</a></h6>
               <span>December 15, 2019</span>
             </div>
@@ -1015,18 +1026,6 @@ git push [远程仓库名]  [远程分支]3. git 别名
 
           </li>
         
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-summary" style="margin: 0;">
-            
-
-              <h6 style="margin: 0;"><a href="/2019/11/12/android%20View%E7%9A%84%E4%BA%8B%E4%BB%B6%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6/">Android view的事件分发机制</a></h6>
-              <span>November 12, 2019</span>
-            </div>
-
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -1066,7 +1065,7 @@ git push [远程仓库名]  [远程分支]3. git 别名
     <h3 class="widget-title">Archives</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1080,7 +1079,7 @@ git push [远程仓库名]  [远程分支]3. git 别名
 
   <div class="clearfix container">
       <div class="site-info">
-	      &copy; 2019 WPY&#39;s Android Tour All Rights Reserved.
+	      &copy; 2020 WPY&#39;s Android Tour All Rights Reserved.
           
             <span id="busuanzi_container_site_uv">
               本站访客数<span id="busuanzi_value_site_uv"></span>人次  
