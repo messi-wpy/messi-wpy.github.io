@@ -19,16 +19,18 @@
   
   
   
-  <meta name="description" content="android开发与开源框架源码学习，java，kotlin等语言学习，linux操作系统">
+  <meta name="description" content="前言：layoutinflater是我们处理view时经常用到的方法，如往布局里动态添加view，recycleview的item创建，自定义view的构造方法中…所以这篇文章就是来好好介绍学习一下view inflate(int resource, ViewGroup root, boolean attachToRoot)这个方法 rootlayout根布局和LayoutParams在学习lay">
 <meta name="keywords" content="android,java,kotlin,源码学习">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android之layoutinflate学习">
 <meta property="og:url" content="https:&#x2F;&#x2F;messi-wpy.github.io&#x2F;2020&#x2F;01&#x2F;13&#x2F;Android%E4%B9%8Blayoutinflate%E5%AD%A6%E4%B9%A0&#x2F;index.html">
 <meta property="og:site_name" content="WPY&#39;s Android Tour">
-<meta property="og:description" content="android开发与开源框架源码学习，java，kotlin等语言学习，linux操作系统">
+<meta property="og:description" content="前言：layoutinflater是我们处理view时经常用到的方法，如往布局里动态添加view，recycleview的item创建，自定义view的构造方法中…所以这篇文章就是来好好介绍学习一下view inflate(int resource, ViewGroup root, boolean attachToRoot)这个方法 rootlayout根布局和LayoutParams在学习lay">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-01-13T10:04:22.086Z">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.loli.net&#x2F;2020&#x2F;01&#x2F;13&#x2F;mvG83HUhkBXzrLg.png">
+<meta property="og:updated_time" content="2020-03-09T03:46:38.316Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;i.loli.net&#x2F;2020&#x2F;01&#x2F;13&#x2F;mvG83HUhkBXzrLg.png">
   
     <link rel="alternate" href="/atom.xml" title="WPY&#39;s Android Tour" type="application/atom+xml">
   
@@ -184,11 +186,37 @@ var themeMenus = {};
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>layoutinflater是我们处理view时经常用到的方法，如往布局里动态添加view，recycleview的item创建，自定义view的构造方法中…<br>所以这篇文章就是来好好介绍学习一下<br><code>view inflate(int resource, ViewGroup root, boolean attachToRoot)</code><br>这个方法</p>
+<h2 id="rootlayout根布局和LayoutParams"><a href="#rootlayout根布局和LayoutParams" class="headerlink" title="rootlayout根布局和LayoutParams"></a>rootlayout根布局和LayoutParams</h2><p>在学习layoutInflater之前，我们必须先了解一下这两个知识</p>
+<h3 id="RootLayout"><a href="#RootLayout" class="headerlink" title="RootLayout"></a>RootLayout</h3><p>根布局其实就是ViewGroup的最外面的一层布局，他也是相对的概念，他是相对他子view的根布局，每个view都是加在一个容器里，也就是viewgroup。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">    android:orientation=&quot;vertical&quot;</span><br><span class="line">    android:layout_width=&quot;100dp&quot;</span><br><span class="line">    android:layout_height=&quot;100dp&quot;</span><br><span class="line">    android:layout_alignParentBottom=&quot;true&quot;&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;Button</span><br><span class="line">        android:layout_width=&quot;match_parent&quot;</span><br><span class="line">        android:layout_height=&quot;match_parent&quot;</span><br><span class="line">        android:background=&quot;@color/colorPrimaryDark&quot;/&gt;</span><br><span class="line"></span><br><span class="line">&lt;/LinearLayout&gt;</span><br></pre></td></tr></table></figure>
+<p>这段代码中LinearLayout就是button的根布局，而将这个整个加入到另一布局中，如：<br><code>relativeLayout.addview(linearlayout)</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;RelativeLayout</span><br><span class="line">    xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">    android:layout_width=&quot;match_parent&quot;</span><br><span class="line">    android:layout_height=&quot;match_parent&quot;</span><br><span class="line">    android:id=&quot;@+id/root_layout&quot;&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;TextView</span><br><span class="line">        android:layout_width=&quot;wrap_content&quot;</span><br><span class="line">        android:layout_height=&quot;60dp&quot;</span><br><span class="line">        android:text=&quot;@string/app_name&quot;</span><br><span class="line">        android:layout_alignParentEnd=&quot;true&quot;</span><br><span class="line">        /&gt;</span><br><span class="line"></span><br><span class="line">&lt;/RelativeLayout&gt;</span><br></pre></td></tr></table></figure>
+<p>那么这时RelativeLayout就是LinearLayout的根布局。<br>那么根布局有什么用呢？别急，你还需要学习一下LayoutParams，才能弄明白。</p>
+<h3 id="LayoutParams"><a href="#LayoutParams" class="headerlink" title="LayoutParams"></a>LayoutParams</h3><p><code>Layout Parameters</code> :布局参数。其实我们平时再用xml写布局时也一直在写他：如上面button的<code>layout_width</code>,<code>layout_height</code>,都是他的layoutparams，即xml里所以的layout_***都是在设置该view的layoutparams。接下来看一下官方解释：</p>
+<blockquote>
+<p>1、LayoutParams are used by views to tell their parents how they want to be laid out.<br>LayoutParams是View用来告诉它的父控件如何放置自己的<br>2、The base LayoutParams class just describes how big the view wants to be for both width and height.<br>基类LayoutParams（也就是ViewGroup.LayoutParams）仅仅描述了这个View想要的宽度和高度<br>3、There are subclasses of LayoutParams for different subclasses of<br>ViewGroup.<br>不同ViewGroup的继承类对应着不同的ViewGroup.LayoutParams的子类</p>
+</blockquote>
+<p><strong>所以，layoutparams是其实设置的是该view的父布局（根布局）提供给他的LayoutParams，然后，根布局就会根据子布局设置的layoutParams作出相应的处理，来给他宽高和应该放置的位置,</strong><br>如上面代码中linearlayout设置了<code>layout_alignParentBottom=&quot;true&quot;</code> ,这其实就是relativeLayout的LayoutParams的一个属性，然后当把他加入relativelayout后，就会把它放到alignParentBottom<br><img src="https://i.loli.net/2020/01/13/mvG83HUhkBXzrLg.png" alt="LayoutParams.png"></p>
+<h2 id="LayoutInflater"><a href="#LayoutInflater" class="headerlink" title="LayoutInflater"></a>LayoutInflater</h2><p>明白前面俩概念后，再学习layoutinflater就很简单了。  他就有几个重载函数，但最后都指向了下面这个函数：<br><code>LayoutInflater.inflate(@LayoutRes int resource, @Nullable ViewGroup root, boolean attachToRoot)</code></p>
+<h4 id="参数解释："><a href="#参数解释：" class="headerlink" title="参数解释："></a>参数解释：</h4><ul>
+<li>resource： 就是布局资源id，如<code>R.layout.item_test</code>，即要动态添加的布局的xml</li>
+<li>root ：就是之前所讲的根布局，其实这个是设置根布局的意思，并不是就把上一个参数resource指定的view添加了这个root根布局里，注意只是设置，给这个view设置了他的相应根布局的LayoutParams。<br>可以设置为Null。如果为Null，那新布局（第一个参数）的根布局参数（注意：是新视图的根布局）就不会被设置成任何布局参数，只有等添加到父布局时候，重新赋给这个根布局新的布局参数，并且第三个参数将毫无作用。我们在第三个参数讲解第二个参数在非Null情况。这时会调用<code>generateDefaultLayoutParams()</code>方法，不同个viewgroup会重写这个方法，从而给其子布局设置不同的默认布局参数。</li>
+<li>attachToRoot： 这个参数才是设置是否要把view加入到root中，如果为true，则直接把view加入到root中，如果为false，则不会添加，等待后期自己手动addview添加</li>
+</ul>
+<p>如果我们不需在onCreateView()中将View添加进ViewGroup，为什么还要传入ViewGroup呢？为什么inflate()方法必须要传入根ViewGroup？<br>原因是及时不需要马上将新填充的View添加进ViewGroup，我们还是需要这个父元素的LayoutParams来在将来添加时决定View的size和position。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>所以通过上面的解释，可看出，root参数十分重要，一定要正确赋值，否则可能会导致有些layout_不起作用，或布局的宽高位置跟你设想的不一样。一般有以下几个使用建议：</p>
+<blockquote>
+<p>如果可以传入ViewGroup作为根元素，那就传入它。<br>避免将null作为根ViewGroup传入。<br>当我们不负责将layout文件的View添加进ViewGroup时设置attachToRoot参数为false。<br>不要在View已经被添加进ViewGroup时传入true。<br>自定义View时很适合将attachToRoot设置为true。 </p>
+</blockquote>
+
       
     </div>
     <footer class="entry-meta entry-footer">
       
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+
       
       
             
@@ -240,7 +268,7 @@ var themeMenus = {};
     <div id="toc" class="toc-article" style="overflow-y: scroll; max-width: 28%;">
     <strong class="toc-title">Contents</strong>
     
-      <ol class="nav">None</ol>
+      <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言："><span class="nav-number">1.</span> <span class="nav-text">前言：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rootlayout根布局和LayoutParams"><span class="nav-number">2.</span> <span class="nav-text">rootlayout根布局和LayoutParams</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RootLayout"><span class="nav-number">2.1.</span> <span class="nav-text">RootLayout</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LayoutParams"><span class="nav-number">2.2.</span> <span class="nav-text">LayoutParams</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LayoutInflater"><span class="nav-number">3.</span> <span class="nav-text">LayoutInflater</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#参数解释："><span class="nav-number">3.0.1.</span> <span class="nav-text">参数解释：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">3.0.2.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol>
     
     </div>
   </aside>
